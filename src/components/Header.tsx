@@ -10,7 +10,7 @@ export function Header() {
         </div>
       </div>
       <div className="subtitle-line">
-        <span className="badge">NEW</span> 给你的MC头像戴上挂件
+        <span className="badge">NEW</span> 给你的头像戴上MC挂件
       </div>
     </header>
   );

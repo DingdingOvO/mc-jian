@@ -18,7 +18,7 @@ export const OVERLAYS: ReadonlyArray<OverlayAsset> = [
   {
     id: 'rusted_golem',
     label: '铜傀儡生锈',
-    url: '/assets/铜傀儡生锈.png',
+    url: '/assets/rusted_golem.png',
     baseSize: 512,
   },
   {
