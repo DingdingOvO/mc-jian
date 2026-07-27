@@ -1,0 +1,33 @@
+{
+  "name": "le-avatar-studio",
+  "version": "1.0.0",
+  "description": "乐魂头像生成器 - React + TypeScript + Webpack",
+  "private": true,
+  "scripts": {
+    "dev": "webpack serve --mode development",
+    "build": "webpack --mode production",
+    "preview": "webpack serve --mode production --no-hot"
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "css-loader": "^7.1.2",
+    "copy-webpack-plugin": "^13.0.1",
+    "html-webpack-plugin": "^5.6.5",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.4",
+    "typescript": "^5.8.2",
+    "webpack": "^5.99.5",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-server": "^5.2.2"
+  },
+  "browserslist": [
+    "last 2 Chrome versions",
+    "last 2 Firefox versions",
+    "last 2 Safari versions"
+  ]
+}
