@@ -125,7 +125,7 @@ export function App() {
             <i className="fab fa-github" /> DingdingOvO
           </a>
         </address>
-        <a className="footer-btn" href="https://github.com/DingdingOvO?tab=repositories" target="_blank" rel="noopener noreferrer">
+        <a className="footer-btn" href="https://github.com/DingdingOvO/mc-jian" target="_blank" rel="noopener noreferrer">
           <i className="fas fa-code" /> 源代码
         </a>
         <a className="footer-btn" href="https://b23.tv/zXfgdpu" target="_blank" rel="noopener noreferrer">
