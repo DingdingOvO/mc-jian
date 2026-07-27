@@ -61,6 +61,7 @@ export const Preview = memo(function Preview({
     inner.height = size;
     const ic = inner.getContext('2d');
     if (!ic) return;
+    // @performance 头像用平滑插值（照片/一般图），挂件素材用 nearest（MC 像素）
     ic.imageSmoothingEnabled = true;
     ic.imageSmoothingQuality = 'high';
     ic.drawImage(avatar, 0, 0, size, size);
@@ -68,8 +69,11 @@ export const Preview = memo(function Preview({
     const cached = overlayCacheRef.current.get(overlayId);
     if (cached && cached.complete && cached.naturalWidth > 0) {
       const ls = size * (scale / 100);
-      const lx = size - ls + offsetX;
+      // @why 小鸡放左下角，其他放右下角
+      const isChick = overlayId === 'chick';
+      const lx = isChick ? 0 + offsetX : size - ls + offsetX;
       const ly = size - ls + offsetY;
+      // @side-effect 保持 image-smoothing 开启，确保缩放素材时不额外产生锯齿
       ic.drawImage(cached, lx, ly, ls, ls);
     }
 
