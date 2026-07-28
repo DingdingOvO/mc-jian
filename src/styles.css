@@ -45,7 +45,7 @@ input { font: inherit; }
    ================================================================ */
 .site-header {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
   margin-bottom: 14px;
 }
 .header-row {
@@ -88,12 +88,12 @@ input { font: inherit; }
    Container
    ================================================================ */
 .container {
-  max-width: 640px;
+  max-width: 720px;
   width: 100%;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 16px;
-  padding: 20px;
+  padding: 24px;
   margin-bottom: 14px;
 }
 
@@ -474,11 +474,11 @@ input { font: inherit; }
 .status .fail { color: #c94040; }
 
 /* ================================================================
-   Footer
+   Footer — 左 GitHub · 中 B站 · 右 源代码(淡化)
    ================================================================ */
 .site-footer {
   width: 100%;
-  max-width: 640px;
+  max-width: 720px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -487,7 +487,6 @@ input { font: inherit; }
   padding: 14px 0 6px;
   border-top: 1px solid var(--line);
 }
-.site-footer address { font-style: normal; display: contents; }
 .footer-btn {
   display: inline-flex;
   align-items: center;
@@ -509,14 +508,18 @@ input { font: inherit; }
 }
 .footer-btn.gh { background: #24292e; color: #fff; border-color: #24292e; }
 .footer-btn.gh:hover { background: #1b1f24; }
-.footer-btn.gh i { font-size: 1rem; }
-.footer-btn i { color: var(--primary); width: 16px; text-align: center; }
-.footer-btn.gh i { color: #fff; }
+.footer-btn.gh i { font-size: 1rem; color: #fff; }
+.footer-btn.bili { background: #fb7299; color: #fff; border-color: #fb7299; }
+.footer-btn.bili:hover { background: #e56789; }
+.footer-btn.bili i { color: #fff; }
+/* @why 源代码淡化，存在但不抢眼 */
+.footer-btn.src { opacity: 0.35; order: 1; }
+.footer-btn.src:hover { opacity: 0.6; }
 
 /* ================================================================
    Adaptive
    ================================================================ */
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   body { padding: 14px 10px 20px; }
   .container { padding: 16px; }
 }
@@ -542,4 +545,19 @@ input { font: inherit; }
   .control-item .label i { display: none; }
   .site-footer { gap: 10px; }
   .footer-btn { font-size: 0.75rem; padding: 5px 10px; }
+}
+
+/* ================================================================
+   宽屏 — MC 主题背景纹理 + 更大呼吸空间
+   ================================================================ */
+@media (min-width: 1024px) {
+  body {
+    padding: 32px 24px 40px;
+    background-image:
+      radial-gradient(circle at 20px 20px, rgba(201, 120, 48, 0.04) 1px, transparent 1px),
+      radial-gradient(circle at 80px 60px, rgba(201, 120, 48, 0.03) 1px, transparent 1px);
+    background-size: 40px 40px, 160px 160px;
+  }
+  .container { padding: 28px; }
+  .picker-grid { grid-template-columns: repeat(6, 1fr); }
 }
