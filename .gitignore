@@ -4,3 +4,11 @@ dist/
 *.log
 .DS_Store
 Thumbs.db
+*.local
+
+# Generated files
+*.js.map
+*.d.ts
+*.d.ts.map
+*.tsbuildinfo
+vite.config.js

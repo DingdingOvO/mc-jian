@@ -141,6 +141,12 @@ input { font: inherit; }
   background: var(--primary-soft);
   border-color: var(--primary);
 }
+.upload-area.is-dragging {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  border-style: solid;
+  transform: scale(1.01);
+}
 .upload-area label {
   display: flex;
   flex-direction: column;
