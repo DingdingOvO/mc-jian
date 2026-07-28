@@ -12,3 +12,5 @@ Thumbs.db
 *.d.ts.map
 *.tsbuildinfo
 vite.config.js
+*.png
+screenshot_*
