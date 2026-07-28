@@ -13,13 +13,25 @@ export const OVERLAYS: ReadonlyArray<OverlayAsset> = [
     id: 'copper_golem',
     label: '铜傀儡',
     url: '/assets/copper_golem.png',
-    baseSize: 512,
+    baseSize: 1024,
+  },
+  {
+    id: 'weathered_golem',
+    label: '铜傀儡·斑驳',
+    url: '/assets/weathered_golem.png',
+    baseSize: 1024,
   },
   {
     id: 'rusted_golem',
-    label: '铜傀儡生锈',
+    label: '铜傀儡·锈蚀',
     url: '/assets/rusted_golem.png',
-    baseSize: 512,
+    baseSize: 1024,
+  },
+  {
+    id: 'oxidized_golem',
+    label: '铜傀儡·氧化',
+    url: '/assets/oxidized_golem.png',
+    baseSize: 1024,
   },
   {
     id: 'chick',
