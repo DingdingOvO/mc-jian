@@ -3,39 +3,34 @@ import type { OverlayAsset } from "../types";
 
 interface OverlayState {
 	loaded: boolean;
-	failed: boolean;
 }
 
-/** @why 所有叠加素材预加载完成后切换才能瞬时渲染。
- *      返回 Map 实现 O(1) 读取。cleanup 标记防止卸载后的 setState。 */
-export function useOverlayCache(overlays: ReadonlyArray<OverlayAsset>) {
+export function useOverlayCache(overlays: OverlayAsset[]) {
 	const cacheRef = useRef<Map<string, HTMLImageElement>>(new Map());
 	const [status, setStatus] = useState<Record<string, OverlayState>>({});
 
 	useEffect(() => {
 		let alive = true;
-
-		const next: Record<string, OverlayState> = {};
-		for (const o of overlays) {
-			next[o.id] = {
-				loaded: cacheRef.current.has(o.id),
-				failed: false,
-			};
-		}
-		setStatus(next);
-
 		const cache = cacheRef.current;
+
+		// 初始化状态
+		const init: Record<string, OverlayState> = {};
+		for (const o of overlays) {
+			init[o.id] = { loaded: cache.has(o.id) };
+		}
+		setStatus(init);
+
 		for (const o of overlays) {
 			if (cache.has(o.id)) continue;
 			const img = new Image();
 			img.onload = () => {
 				if (!alive) return;
 				cache.set(o.id, img);
-				setStatus((s) => ({ ...s, [o.id]: { loaded: true, failed: false } }));
+				setStatus((s) => ({ ...s, [o.id]: { loaded: true } }));
 			};
 			img.onerror = () => {
 				if (!alive) return;
-				setStatus((s) => ({ ...s, [o.id]: { loaded: false, failed: true } }));
+				setStatus((s) => ({ ...s, [o.id]: { loaded: false } }));
 			};
 			img.src = o.url;
 		}

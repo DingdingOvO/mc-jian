@@ -1,6 +1,5 @@
 import { useCallback, useRef, useState } from "react";
 
-/** @why 用 ref 持有 HTMLImageElement 避免重渲染，状态仅同步"可读"信号 */
 export function useImageLoader() {
 	const imgRef = useRef<HTMLImageElement | null>(null);
 	const [dataUrl, setDataUrl] = useState<string | null>(null);
@@ -14,7 +13,7 @@ export function useImageLoader() {
 		reader.onload = (ev) => {
 			const result = ev.target?.result;
 			if (typeof result !== "string") {
-				setError("读取文件失败");
+				setError("读取失败");
 				setLoading(false);
 				return;
 			}
