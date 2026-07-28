@@ -130,7 +130,7 @@ export function App() {
           <i className="fab fa-github" /> DingdingOvO
         </a>
         <a className="footer-btn bili" href="https://b23.tv/zXfgdpu" target="_blank" rel="noopener noreferrer">
-          <i className="fa-brands fa-bilibili" /> DingdingOvO
+          <i className="fa-brands fa-bilibili" /> 丁丁QZ
         </a>
         <a className="footer-btn src" href="https://github.com/DingdingOvO/mc-jian" target="_blank" rel="noopener noreferrer">
           <i className="fas fa-code" /> 源代码
