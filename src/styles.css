@@ -1,20 +1,20 @@
 /* ================================================================
-   MC挂件 · 最终版配色
+   MC挂件 v2 · 优化版
    MC 沙石暖色底 + 铜器橙主色 + 清新白卡片
    ================================================================ */
 
 :root {
-  --primary: #c97830;        /* MC 铜/陶瓦暖橙 */
+  --primary: #c97830;
   --primary-hard: #a86120;
   --primary-soft: #fef0df;
   --primary-glow: rgba(201, 120, 48, 0.14);
   --ink: #1a1f2e;
   --ink-soft: #5b6170;
   --ink-mute: #929aa8;
-  --bg-warm: #f5f1ea;        /* MC 沙石色 */
+  --bg-warm: #f5f1ea;
   --bg-warm-2: #ebe5db;
   --surface: #ffffff;
-  --surface-card: #fcfaf7;   /* 卡片带暖 */
+  --surface-card: #fcfaf7;
   --line: #e6e0d8;
   --line-strong: #cbc4bc;
   --radius: 12px;
@@ -41,7 +41,7 @@ button { font: inherit; cursor: pointer; }
 input { font: inherit; }
 
 /* ================================================================
-   Header — 精简
+   Header
    ================================================================ */
 .site-header {
   width: 100%;
@@ -98,8 +98,7 @@ input { font: inherit; }
 }
 
 /* ================================================================
-   标题区段（上传 / 素材选择 / 调整参数）
-   用彩色左 border + 标题行统一风格
+   标题区段
    ================================================================ */
 .section-head {
   display: flex;
@@ -176,7 +175,7 @@ input { font: inherit; }
 }
 
 /* ================================================================
-   Preview
+   Preview — will-change 避免 repaint 卡顿
    ================================================================ */
 .preview-area {
   background: var(--surface-card);
@@ -188,6 +187,7 @@ input { font: inherit; }
   justify-content: center;
   align-items: center;
   min-height: 200px;
+  contain: layout style;
 }
 .preview-canvas {
   display: block;
@@ -195,6 +195,7 @@ input { font: inherit; }
   border: 1px solid var(--line);
   border-radius: 8px;
   max-width: 100%;
+  will-change: transform;
 }
 
 /* ================================================================
@@ -256,6 +257,7 @@ input { font: inherit; }
   pointer-events: auto;
   touch-action: none;
   border-radius: 2px;
+  will-change: transform;
 }
 .crop-box .handle {
   position: absolute;
@@ -332,6 +334,7 @@ input { font: inherit; }
   margin: auto;
   animation: spin 0.8s linear infinite;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 .picker-bad {
   position: absolute;
   inset: 0;
@@ -352,7 +355,7 @@ input { font: inherit; }
 }
 
 /* ================================================================
-   Controls — 去掉边框背景，直接靠容器
+   Controls
    ================================================================ */
 .controls {
   margin-bottom: 14px;
@@ -471,7 +474,7 @@ input { font: inherit; }
 .status .fail { color: #c94040; }
 
 /* ================================================================
-   Footer — GitHub + 作者 + 源码
+   Footer
    ================================================================ */
 .site-footer {
   width: 100%;

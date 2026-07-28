@@ -13,12 +13,7 @@ interface Props {
 
 const PREVIEW_MAX = 280;
 
-/** @performance 复用同一个 buffer canvas，避免每帧 createElement 内存抖动 */
-let _buf: HTMLCanvasElement | null = null;
-const buf = () => (_buf ??= document.createElement('canvas'));
-
-/** @why deps 数组严格声明受 input：任何未在 deps 中的变化都不会触发重绘；
- *      配合父组件 useTransition 润滑，slider 滑动保持主线程响应 */
+/** @performance 复用 buffer canvas 避免内存抖动，挂 ref 而非模块级变量 */
 export const Preview = memo(function Preview({
   avatarDataUrl,
   avatarImgRef,
@@ -30,6 +25,7 @@ export const Preview = memo(function Preview({
   finalCanvasRef,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const bufRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -37,7 +33,6 @@ export const Preview = memo(function Preview({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 空状态
     if (!avatarDataUrl || !avatarImgRef.current) {
       const p = PREVIEW_MAX;
       canvas.width = p;
@@ -55,13 +50,19 @@ export const Preview = memo(function Preview({
 
     const avatar = avatarImgRef.current;
     const size = Math.min(avatar.width, avatar.height);
-    const target = pFitSize(size, PREVIEW_MAX);
-    const inner = buf();
+    const target = Math.min(PREVIEW_MAX, size);
+
+    // @performance 复用 buffer canvas，避免频繁 createElement
+    let inner = bufRef.current;
+    if (!inner) {
+      inner = document.createElement('canvas');
+      bufRef.current = inner;
+    }
     inner.width = size;
     inner.height = size;
     const ic = inner.getContext('2d');
     if (!ic) return;
-    // @performance 头像用平滑插值（照片/一般图），挂件素材用 nearest（MC 像素）
+
     ic.imageSmoothingEnabled = true;
     ic.imageSmoothingQuality = 'high';
     ic.drawImage(avatar, 0, 0, size, size);
@@ -69,11 +70,9 @@ export const Preview = memo(function Preview({
     const cached = overlayCacheRef.current.get(overlayId);
     if (cached && cached.complete && cached.naturalWidth > 0) {
       const ls = size * (scale / 100);
-      // @why 小鸡放左下角，其他放右下角
       const isChick = overlayId === 'chick';
       const lx = isChick ? 0 + offsetX : size - ls + offsetX;
       const ly = size - ls + offsetY;
-      // @side-effect 保持 image-smoothing 开启，确保缩放素材时不额外产生锯齿
       ic.drawImage(cached, lx, ly, ls, ls);
     }
 
@@ -93,7 +92,3 @@ export const Preview = memo(function Preview({
     </div>
   );
 });
-
-function pFitSize(src: number, max: number) {
-  return Math.min(max, src);
-}

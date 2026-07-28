@@ -1,6 +1,8 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 module.exports = (env, argv) => {
   const isProd = argv.mode === 'production';
@@ -21,18 +23,29 @@ module.exports = (env, argv) => {
         {
           test: /\.tsx?$/,
           exclude: /node_modules/,
-          use: { loader: 'ts-loader', options: { transpileOnly: true } },
+          use: {
+            loader: 'swc-loader',
+            options: {
+              jsc: {
+                parser: { syntax: 'typescript', tsx: true },
+                transform: { react: { runtime: 'automatic' } },
+                target: 'es2022',
+              },
+            },
+          },
         },
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader'],
+          use: [
+            isProd ? MiniCssExtractPlugin.loader : 'style-loader',
+            'css-loader',
+          ],
         },
       ],
     },
     plugins: [
       new HtmlWebpackPlugin({
         template: './public/index.html',
-        favicon: undefined,
       }),
       new CopyWebpackPlugin({
         patterns: [
@@ -40,13 +53,36 @@ module.exports = (env, argv) => {
             from: 'public',
             to: '.',
             globOptions: {
-              ignore: ['**/index.html', '**/index.html.tmpl'],
+              ignore: ['**/index.html'],
             },
             noErrorOnMissing: true,
           },
         ],
       }),
+      ...(isProd
+        ? [
+            new MiniCssExtractPlugin({
+              filename: 'assets/[name].[contenthash:8].css',
+            }),
+          ]
+        : []),
     ],
+    optimization: {
+      minimize: isProd,
+      minimizer: ['...', new CssMinimizerPlugin()],
+      splitChunks: isProd
+        ? {
+            chunks: 'all',
+            cacheGroups: {
+              vendor: {
+                test: /[\\/]node_modules[\\/]/,
+                name: 'vendor',
+                chunks: 'all',
+              },
+            },
+          }
+        : undefined,
+    },
     devServer: {
       static: { directory: path.resolve(__dirname, 'public') },
       port: 5173,
@@ -56,6 +92,6 @@ module.exports = (env, argv) => {
       open: false,
     },
     performance: { hints: false },
-    devtool: isProd ? 'source-map' : 'eval-cheap-module-source-map',
+    devtool: isProd ? false : 'eval-cheap-module-source-map',
   };
 };

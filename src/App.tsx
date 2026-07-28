@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, useTransition } from 'react';
+import { useCallback, useDeferredValue, useMemo, useRef, useState } from 'react';
 import { OVERLAYS, DEFAULT_OVERLAY_ID } from './data/overlays';
 import { useImageLoader } from './hooks/useImageLoader';
 import { useOverlayCache } from './hooks/useOverlayCache';
@@ -21,18 +21,19 @@ export function App() {
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [collapsed, setCollapsed] = useState(false);
-  const [, startTransition] = useTransition();
 
   const finalCanvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // @performance useDeferredValue 让 slider 拖动不阻塞主线程，
+  //             Preview 收到的是延后值，canvas 渲染压力自然降低
+  const deferredScale = useDeferredValue(scale);
+  const deferredOffsetX = useDeferredValue(offsetX);
+  const deferredOffsetY = useDeferredValue(offsetY);
 
   const activeOverlay = useMemo(
     () => OVERLAYS.find((o) => o.id === overlayId) ?? OVERLAYS[0],
     [overlayId],
   );
-
-  const handleScale = useCallback((v: number) => startTransition(() => setScale(v)), []);
-  const handleOffsetX = useCallback((v: number) => startTransition(() => setOffsetX(v)), []);
-  const handleOffsetY = useCallback((v: number) => startTransition(() => setOffsetY(v)), []);
 
   const handleUpload = useCallback(
     (file: File) => {
@@ -51,10 +52,15 @@ export function App() {
   const handleDownload = useCallback(() => {
     const canvas = finalCanvasRef.current;
     if (!canvas) { window.alert('请先上传头像'); return; }
-    const a = document.createElement('a');
-    a.download = `MC挂件_${activeOverlay.label}.png`;
-    a.href = canvas.toDataURL('image/png');
-    a.click();
+    canvas.toBlob((blob) => {
+      if (!blob) { window.alert('下载失败'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.download = `MC挂件_${activeOverlay.label}.png`;
+      a.href = url;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    });
   }, [activeOverlay.label]);
 
   return (
@@ -85,9 +91,9 @@ export function App() {
           avatarImgRef={imgRef}
           overlayId={overlayId}
           overlayCacheRef={overlayCache}
-          scale={scale}
-          offsetX={offsetX}
-          offsetY={offsetY}
+          scale={deferredScale}
+          offsetX={deferredOffsetX}
+          offsetY={deferredOffsetY}
           finalCanvasRef={finalCanvasRef}
         />
 
@@ -109,9 +115,9 @@ export function App() {
           调整位置
         </div>
         <div className="controls">
-          <ControlSlider label="大小" icon="expand" min={5} max={60} step={0.5} value={scale} unit="%" onChange={handleScale} />
-          <ControlSlider label="水平偏移" icon="arrows-alt-h" min={-200} max={200} step={1} value={offsetX} onChange={handleOffsetX} />
-          <ControlSlider label="垂直偏移" icon="arrows-alt-v" min={-200} max={200} step={1} value={offsetY} onChange={handleOffsetY} />
+          <ControlSlider label="大小" icon="expand" min={5} max={60} step={0.5} value={scale} unit="%" onChange={setScale} />
+          <ControlSlider label="水平偏移" icon="arrows-alt-h" min={-200} max={200} step={1} value={offsetX} onChange={setOffsetX} />
+          <ControlSlider label="垂直偏移" icon="arrows-alt-v" min={-200} max={200} step={1} value={offsetY} onChange={setOffsetY} />
         </div>
 
         <DownloadButton onClick={handleDownload} disabled={!avatarDataUrl} />
