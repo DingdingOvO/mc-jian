@@ -1,36 +1,37 @@
 {
-  "name": "mc-jian",
-  "version": "2.0.0",
-  "description": "MC挂件头像生成器 — 给你的头像戴上 Minecraft 像素挂件",
-  "private": true,
-  "scripts": {
-    "dev": "webpack serve --mode development",
-    "build": "webpack --mode production",
-    "preview": "webpack serve --mode production --no-hot"
-  },
-  "dependencies": {
-    "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
-  "devDependencies": {
-    "@swc/core": "^1.11.16",
-    "@types/react": "^19.1.0",
-    "@types/react-dom": "^19.1.0",
-    "copy-webpack-plugin": "^13.0.1",
-    "css-loader": "^7.1.2",
-    "css-minimizer-webpack-plugin": "^7.0.2",
-    "html-webpack-plugin": "^5.6.5",
-    "mini-css-extract-plugin": "^2.9.2",
-    "style-loader": "^4.0.0",
-    "swc-loader": "^0.2.6",
-    "typescript": "^5.8.2",
-    "webpack": "^5.99.5",
-    "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.2"
-  },
-  "browserslist": [
-    "last 2 Chrome versions",
-    "last 2 Firefox versions",
-    "last 2 Safari versions"
-  ]
+	"name": "mc-jian",
+	"version": "3.0.0",
+	"description": "MC挂件头像生成器 — 给你的头像戴上 Minecraft 像素挂件",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "tsc --noEmit && vite build",
+		"preview": "vite preview",
+		"lint": "biome check --write --unsafe src/",
+		"lint:ci": "biome check src/",
+		"typecheck": "tsc --noEmit",
+		"prepare": "husky"
+	},
+	"lint-staged": {
+		"*.{ts,tsx,js,jsx,json,md}": [
+			"biome check --write --unsafe --no-errors-on-unmatched"
+		]
+	},
+	"dependencies": {
+		"react": "^19.1.1",
+		"react-dom": "^19.1.1"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.5.5",
+		"@commitlint/cli": "21.2.1",
+		"@commitlint/config-conventional": "21.2.0",
+		"@types/react": "^19.1.0",
+		"@types/react-dom": "^19.1.0",
+		"@vitejs/plugin-react-swc": "^4.3.2",
+		"husky": "9.1.7",
+		"lint-staged": "16.4.0",
+		"typescript": "^5.8.2",
+		"vite": "^8.1.5"
+	}
 }

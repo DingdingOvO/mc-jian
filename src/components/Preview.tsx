@@ -1,94 +1,87 @@
-import { memo, useEffect, useRef } from 'react';
+import { memo, useEffect, useRef } from "react";
+import type { CropRect } from "../types";
 
 interface Props {
-  avatarDataUrl: string | null;
-  avatarImgRef: { current: HTMLImageElement | null };
-  overlayId: string;
-  overlayCacheRef: { current: Map<string, HTMLImageElement> };
-  scale: number;
-  offsetX: number;
-  offsetY: number;
-  finalCanvasRef: { current: HTMLCanvasElement | null };
+	img: HTMLImageElement;
+	overlay: HTMLImageElement | null;
+	cropRect: CropRect;
+	scale: number;
+	ox: number;
+	oy: number;
+	cacheReady: boolean;
 }
 
-const PREVIEW_MAX = 280;
+const PREVIEW = 280;
 
-/** @performance 复用 buffer canvas 避免内存抖动，挂 ref 而非模块级变量 */
-export const Preview = memo(function Preview({
-  avatarDataUrl,
-  avatarImgRef,
-  overlayId,
-  overlayCacheRef,
-  scale,
-  offsetX,
-  offsetY,
-  finalCanvasRef,
-}: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const bufRef = useRef<HTMLCanvasElement | null>(null);
+export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox, oy, cacheReady }: Props) {
+	const ref = useRef<HTMLCanvasElement>(null);
+	const avatarBuf = useRef<HTMLCanvasElement | null>(null);
+	const cropKey = useRef("");
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+	useEffect(() => {
+		void cacheReady; // trigger re-render when overlay loads
+		const c = ref.current;
+		if (!c) return;
 
-    if (!avatarDataUrl || !avatarImgRef.current) {
-      const p = PREVIEW_MAX;
-      canvas.width = p;
-      canvas.height = p;
-      ctx.fillStyle = '#eef1f5';
-      ctx.fillRect(0, 0, p, p);
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '15px system-ui, -apple-system, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('点击上方按钮上传头像', p / 2, p / 2);
-      finalCanvasRef.current = null;
-      return;
-    }
+		const sx = cropRect.x * img.naturalWidth;
+		const sy = cropRect.y * img.naturalHeight;
+		const sw = cropRect.w * img.naturalWidth;
+		const out = Math.round(sw);
+		if (out < 1) return;
 
-    const avatar = avatarImgRef.current;
-    const size = Math.min(avatar.width, avatar.height);
-    const target = Math.min(PREVIEW_MAX, size);
+		const key = `${sx.toFixed(1)},${sy.toFixed(1)},${out}`;
 
-    // @performance 复用 buffer canvas，避免频繁 createElement
-    let inner = bufRef.current;
-    if (!inner) {
-      inner = document.createElement('canvas');
-      bufRef.current = inner;
-    }
-    inner.width = size;
-    inner.height = size;
-    const ic = inner.getContext('2d');
-    if (!ic) return;
+		// 裁剪变化 → 重建头像缓存
+		if (key !== cropKey.current) {
+			cropKey.current = key;
+			const b = document.createElement("canvas");
+			b.width = out;
+			b.height = out;
+			const bc = b.getContext("2d");
+			if (!bc) return;
+			bc.imageSmoothingEnabled = true;
+			bc.imageSmoothingQuality = "high";
+			// 1:1 裁剪，sw 同时作为宽高
+			bc.drawImage(img, sx, sy, sw, sw, 0, 0, out, out);
+			avatarBuf.current = b;
+		}
 
-    ic.imageSmoothingEnabled = true;
-    ic.imageSmoothingQuality = 'high';
-    ic.drawImage(avatar, 0, 0, size, size);
+		const base = avatarBuf.current;
+		if (!base) return;
 
-    const cached = overlayCacheRef.current.get(overlayId);
-    if (cached && cached.complete && cached.naturalWidth > 0) {
-      const ls = size * (scale / 100);
-      const isChick = overlayId === 'chick';
-      const lx = isChick ? 0 + offsetX : size - ls + offsetX;
-      const ly = size - ls + offsetY;
-      ic.drawImage(cached, lx, ly, ls, ls);
-    }
+		// 合成 buffer = 头像缓存 + 挂件
+		const b = document.createElement("canvas");
+		b.width = out;
+		b.height = out;
+		const bc = b.getContext("2d");
+		if (!bc) return;
+		bc.imageSmoothingEnabled = true;
+		bc.imageSmoothingQuality = "high";
+		bc.drawImage(base, 0, 0);
 
-    finalCanvasRef.current = inner;
+		if (overlay) {
+			const ls = out * (scale / 100);
+			const chick = overlay.src.includes("chick");
+			const lx = chick ? 0 + ox : out - ls + ox;
+			const ly = out - ls + oy;
+			bc.drawImage(overlay, lx, ly, ls, ls);
+		}
 
-    canvas.width = target;
-    canvas.height = target;
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.clearRect(0, 0, target, target);
-    ctx.drawImage(inner, 0, 0, target, target);
-  }, [avatarDataUrl, avatarImgRef, overlayId, overlayCacheRef, scale, offsetX, offsetY, finalCanvasRef]);
+		// 输出到预览
+		c.width = out;
+		c.height = out;
+		c.style.width = `${PREVIEW}px`;
+		c.style.height = `${PREVIEW}px`;
+		const ctx = c.getContext("2d");
+		if (!ctx) return;
+		ctx.imageSmoothingEnabled = true;
+		ctx.imageSmoothingQuality = "high";
+		ctx.drawImage(b, 0, 0);
+	}, [img, overlay, cropRect, scale, ox, oy, cacheReady]);
 
-  return (
-    <div className="preview-area">
-      <canvas ref={canvasRef} className="preview-canvas" />
-    </div>
-  );
+	return (
+		<div className="preview-wrap">
+			<canvas ref={ref} className="preview-canvas" />
+		</div>
+	);
 });

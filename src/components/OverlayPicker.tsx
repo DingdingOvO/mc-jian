@@ -1,45 +1,41 @@
-import { memo } from 'react';
-import type { OverlayAsset } from '../types';
-
-interface StatusMap {
-  [k: string]: { loaded: boolean; failed: boolean };
-}
+import { memo } from "react";
+import type { OverlayAsset } from "../types";
 
 interface Props {
-  overlays: ReadonlyArray<OverlayAsset>;
-  status: StatusMap;
-  activeId: string;
-  onChange: (id: string) => void;
+	items: OverlayAsset[];
+	activeId: string;
+	onChange: (id: string) => void;
+	cache: Map<string, HTMLImageElement>;
+	open: boolean;
+	onToggle: () => void;
 }
 
-export const OverlayPicker = memo(function OverlayPicker({ overlays, status, activeId, onChange }: Props) {
-  return (
-    <section className="overlay-picker" aria-label="素材选择">
-      <header className="picker-header">
-        <span><i className="fas fa-shapes" /> 素材选择</span>
-        <em>已选：{overlays.find((o) => o.id === activeId)?.label ?? '—'}</em>
-      </header>
-      <div className="picker-grid">
-        {overlays.map((o) => {
-          const isActive = o.id === activeId;
-          const s = status[o.id] ?? { loaded: false, failed: false };
-          return (
-            <button
-              key={o.id}
-              type="button"
-              className={`picker-card${isActive ? ' is-active' : ''}${s.failed ? ' is-failed' : ''}`}
-              onClick={() => onChange(o.id)}
-            >
-              <div className="picker-thumb">
-                <img src={o.url} alt={o.label} loading="lazy" />
-                {!s.loaded && !s.failed && <span className="picker-spinner" aria-hidden />}
-                {s.failed && <span className="picker-bad" aria-hidden><i className="fas fa-exclamation-triangle" /></span>}
-              </div>
-              <span className="picker-label">{o.label}</span>
-            </button>
-          );
-        })}
-      </div>
-    </section>
-  );
+export const OverlayPicker = memo(function OverlayPicker({ items, activeId, onChange, open, onToggle }: Props) {
+	return (
+		<section className="picker">
+			<button className="picker-hd" onClick={onToggle} type="button">
+				<span className="bar" />
+				<i className="fas fa-shapes" />
+				选择挂件
+				<span className="picker-arrow">{open ? "▲" : "▼"}</span>
+			</button>
+			{open && (
+				<div className="picker-grid">
+					{items.map((o) => (
+						<button
+							key={o.id}
+							type="button"
+							className={`picker-card${o.id === activeId ? " active" : ""}`}
+							onClick={() => onChange(o.id)}
+						>
+							<div className="picker-thumb">
+								<img src={o.url} alt={o.label} loading="lazy" />
+							</div>
+							<span className="picker-label">{o.label}</span>
+						</button>
+					))}
+				</div>
+			)}
+		</section>
+	);
 });

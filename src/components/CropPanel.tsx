@@ -1,215 +1,165 @@
-import { memo, useEffect, useRef } from 'react';
-import type { CropRect } from '../types';
+import { memo, useCallback, useEffect, useRef, useState } from "react";
+import type { CropRect } from "../types";
 
 interface Props {
-  visible: boolean;
-  collapsed: boolean;
-  imgRef: { current: HTMLImageElement | null };
-  onToggle: () => void;
-  onVisibleChange: (visible: boolean) => void;
+	img: HTMLImageElement;
+	onCrop: (r: CropRect) => void;
+	onSkip: () => void;
 }
 
-type DragMode =
-  | { kind: 'move' }
-  | { kind: 'resize'; dir: 'nw' | 'ne' | 'sw' | 'se' }
-  | null;
+/** 裁剪 — 纯 CSS transform + Pointer Events，无 canvas */
+export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props) {
+	const wrap = useRef<HTMLDivElement>(null);
+	const [s, setS] = useState({ px: 0, py: 0, z: 1 });
+	const sRef = useRef(s);
+	sRef.current = s;
 
-const MIN_RATIO = 0.1;
-const DEFAULT_CROP: CropRect = { x: 0.1, y: 0.1, w: 0.8, h: 0.8 };
+	const drag = useRef<{ sx: number; sy: number } | null>(null);
+	const pts = useRef<Map<number, { x: number; y: number }>>(new Map());
+	const pinch = useRef<{ d: number; z: number } | null>(null);
 
-/**
- * @why 鼠标和触摸共享同一套拖拽逻辑，通过 pointer 归一化避免重复实现。
- *      全部交互下沉到 document 级 listener，避免 React 重渲染时重复绑定。
- */
-export const CropPanel = memo(function CropPanel({ visible, collapsed, imgRef, onToggle, onVisibleChange }: Props) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const boxRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+	// 初始缩放
+	useEffect(() => {
+		const w = wrap.current?.clientWidth ?? 400;
+		const fp = Math.min(w, 500) * 0.88;
+		const z = Math.max(0.3, Math.min(6, fp / Math.min(img.naturalWidth, img.naturalHeight)));
+		setS({ px: 0, py: 0, z });
+	}, [img]);
 
-  const cropRef = useRef<CropRect>(DEFAULT_CROP);
-  const dragRef = useRef<DragMode>(null);
-  const startRef = useRef<{
-    px: number;
-    py: number;
-    base: CropRect;
-    size: number;
-  } | null>(null);
+	const ptrDown = useCallback((e: React.PointerEvent) => {
+		const el = e.currentTarget as HTMLElement;
+		el.setPointerCapture(e.pointerId);
+		pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
-  const getClientXY = (e: MouseEvent | TouchEvent): { cx: number; cy: number } | null => {
-    if ('touches' in e) {
-      const t = e.touches[0];
-      return t ? { cx: t.clientX, cy: t.clientY } : null;
-    }
-    return { cx: e.clientX, cy: e.clientY };
-  };
+		if (pts.current.size >= 2) {
+			const list = Array.from(pts.current.values());
+			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
+			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
+			pinch.current = { d: Math.sqrt(dx * dx + dy * dy), z: sRef.current.z };
+			drag.current = null;
+		} else {
+			drag.current = { sx: e.clientX, sy: e.clientY };
+		}
+	}, []);
 
-  const toLocal = (clientX: number, clientY: number) => {
-    const el = containerRef.current;
-    const canvas = canvasRef.current;
-    if (!el || !canvas) return null;
-    const cr = el.getBoundingClientRect();
-    const sx = canvas.width / (cr.width - 12);
-    return {
-      mx: (clientX - cr.left) / sx,
-      my: (clientY - cr.top) / sx,
-      size: canvas.width,
-    };
-  };
+	const ptrMove = useCallback((e: React.PointerEvent) => {
+		pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		const p = pinch.current;
+		const cur = sRef.current;
 
-  const draw = () => {
-    const canvas = canvasRef.current;
-    const box = boxRef.current;
-    const container = containerRef.current;
-    const img = imgRef.current;
-    if (!canvas || !box || !container) return;
-    const rect = container.getBoundingClientRect();
-    const maxSize = Math.min(rect.width - 12, 600);
-    canvas.width = maxSize;
-    canvas.height = maxSize;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    ctx.clearRect(0, 0, maxSize, maxSize);
-    if (img) {
-      const ratio = Math.max(maxSize / img.width, maxSize / img.height);
-      const dw = img.width * ratio;
-      const dh = img.height * ratio;
-      ctx.drawImage(img, (maxSize - dw) / 2, (maxSize - dh) / 2, dw, dh);
-    }
-    const c = cropRef.current;
-    const bx = c.x * maxSize;
-    const by = c.y * maxSize;
-    const bw = c.w * maxSize;
-    const bh = c.h * maxSize;
-    box.style.left = `${bx}px`;
-    box.style.top = `${by}px`;
-    box.style.width = `${bw}px`;
-    box.style.height = `${bh}px`;
-  };
+		if (p && pts.current.size >= 2) {
+			const list = Array.from(pts.current.values());
+			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
+			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
+			const dist = Math.sqrt(dx * dx + dy * dy);
+			const ratio = Math.max(0.7, Math.min(1.4, dist / p.d));
+			const nz = Math.max(0.3, Math.min(6, p.z * ratio));
 
-  /** @why 合并鼠标/触摸拖拽更新逻辑，避免两份重复代码 */
-  const handleDragMove = (dx: number, dy: number) => {
-    const mode = dragRef.current;
-    const start = startRef.current;
-    if (!mode || !start) return;
-    const sx = dx / start.size;
-    const sy = dy / start.size;
+			const el = wrap.current;
+			if (el) {
+				const cr = el.getBoundingClientRect();
+				const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
+				const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
+				const ix = (cx - cr.width / 2 - cur.px) / p.z;
+				const iy = (cy - cr.height / 2 - cur.py) / p.z;
+				setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
+			}
+			return;
+		}
 
-    if (mode.kind === 'move') {
-      cropRef.current.x = Math.max(0, Math.min(1 - start.base.w, start.base.x + sx));
-      cropRef.current.y = Math.max(0, Math.min(1 - start.base.h, start.base.y + sy));
-    } else {
-      let nw = start.base.w, nh = start.base.h, nx = start.base.x, ny = start.base.y;
-      if (mode.dir === 'ne' || mode.dir === 'se') nw = start.base.w + sx;
-      if (mode.dir === 'nw' || mode.dir === 'sw') { nw = start.base.w - sx; nx = start.base.x + sx; }
-      if (mode.dir === 'sw' || mode.dir === 'se') nh = start.base.h + sy;
-      if (mode.dir === 'nw' || mode.dir === 'ne') { nh = start.base.h - sy; ny = start.base.y + sy; }
-      if (nw < MIN_RATIO) nw = MIN_RATIO;
-      if (nh < MIN_RATIO) nh = MIN_RATIO;
-      const avg = (nw + nh) / 2;
-      nw = nh = avg;
-      if (nx < 0) nx = 0;
-      if (ny < 0) ny = 0;
-      if (nx + nw > 1) nx = 1 - nw;
-      if (ny + nh > 1) ny = 1 - nh;
-      cropRef.current.x = nx;
-      cropRef.current.y = ny;
-      cropRef.current.w = nw;
-      cropRef.current.h = nh;
-    }
-    draw();
-  };
+		const d = drag.current;
+		if (!d) return;
+		setS({ ...cur, px: cur.px + (e.clientX - d.sx), py: cur.py + (e.clientY - d.sy) });
+		drag.current = { sx: e.clientX, sy: e.clientY };
+	}, []);
 
-  /** @why 统一指针事件入口，消除分离的 mousemove/touchmove 重复代码 */
-  const onPointerMove = (e: MouseEvent | TouchEvent) => {
-    const start = startRef.current;
-    if (!start) return;
-    e.preventDefault();
-    const pt = getClientXY(e);
-    if (!pt) return;
-    const local = toLocal(pt.cx, pt.cy);
-    if (!local) return;
-    handleDragMove(local.mx - start.px, local.my - start.py);
-  };
+	const ptrUp = useCallback((e: React.PointerEvent) => {
+		pts.current.delete(e.pointerId);
+		if (pts.current.size < 2) pinch.current = null;
+		if (pts.current.size === 0) drag.current = null;
+	}, []);
 
-  const onPointerUp = () => {
-    dragRef.current = null;
-    startRef.current = null;
-  };
+	const onWheel = useCallback((e: React.WheelEvent) => {
+		const cur = sRef.current;
+		const el = e.currentTarget;
+		const cr = el.getBoundingClientRect();
+		const cx = e.clientX - cr.left;
+		const cy = e.clientY - cr.top;
+		const ratio = e.deltaY > 0 ? 0.9 : 1.1;
+		const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
+		const ix = (cx - cr.width / 2 - cur.px) / cur.z;
+		const iy = (cy - cr.height / 2 - cur.py) / cur.z;
+		setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
+	}, []);
 
-  useEffect(() => {
-    if (!visible) return;
-    draw();
-    const onResize = () => draw();
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [visible]);
+	const apply = useCallback(() => {
+		const el = wrap.current;
+		if (!el) return;
+		const cw = el.clientWidth;
+		const ch = el.clientHeight;
+		const fp = Math.min(cw, ch) * 0.88;
+		const fx = (cw - fp) / 2;
+		const fy = (ch - fp) / 2;
+		const v = sRef.current;
+		const cx = (fx + fp / 2 - cw / 2 - v.px) / v.z + img.naturalWidth / 2;
+		const cy = (fy + fp / 2 - ch / 2 - v.py) / v.z + img.naturalHeight / 2;
+		const half = fp / v.z / 2;
+		let sx = cx - half,
+			sy = cy - half;
+		const sw = fp / v.z;
+		sx = Math.max(0, Math.min(img.naturalWidth - sw, sx));
+		sy = Math.max(0, Math.min(img.naturalHeight - sw, sy));
+		onCrop({
+			x: sx / img.naturalWidth,
+			y: sy / img.naturalHeight,
+			w: sw / img.naturalWidth,
+			h: sw / img.naturalHeight,
+		});
+	}, [img, onCrop]);
 
-  useEffect(() => {
-    document.addEventListener('mousemove', onPointerMove);
-    document.addEventListener('mouseup', onPointerUp);
-    document.addEventListener('touchmove', onPointerMove, { passive: false });
-    document.addEventListener('touchend', onPointerUp);
-    return () => {
-      document.removeEventListener('mousemove', onPointerMove);
-      document.removeEventListener('mouseup', onPointerUp);
-      document.removeEventListener('touchmove', onPointerMove);
-      document.removeEventListener('touchend', onPointerUp);
-    };
-  }, []);
-
-  const beginDrag = (kind: 'move' | 'resize', dir?: 'nw' | 'ne' | 'sw' | 'se') =>
-    (e: React.MouseEvent | React.TouchEvent) => {
-      if (kind === 'resize' && !dir) return;
-      if (kind === 'move' && (e.target as HTMLElement)?.classList?.contains('handle')) return;
-      const pt = 'touches' in e ? e.touches[0] : e;
-      if (!pt) return;
-      const local = toLocal(pt.clientX, pt.clientY);
-      if (!local) return;
-      dragRef.current = kind === 'move' ? { kind: 'move' } : { kind: 'resize', dir: dir! };
-      startRef.current = {
-        px: local.mx,
-        py: local.my,
-        base: { ...cropRef.current },
-        size: local.size,
-      };
-      if ('preventDefault' in e) e.preventDefault();
-    };
-
-  if (!visible) return null;
-
-  return (
-    <section className={`crop-panel${collapsed ? ' is-collapsed' : ''}`}>
-      <div className="crop-header">
-        <span><i className="fas fa-crop-alt" /> 调整裁剪区域 (1:1)</span>
-        <div className="crop-header-actions">
-          <button type="button" className="toggle-btn" onClick={onToggle}>
-            {collapsed ? '展开' : '收起'}
-          </button>
-          <button type="button" className="toggle-btn danger" onClick={() => onVisibleChange(false)}>
-            <i className="fas fa-times" /> 跳过
-          </button>
-        </div>
-      </div>
-      {!collapsed && (
-        <div className="crop-container" ref={containerRef}>
-          <canvas ref={canvasRef} />
-          <div
-            className="crop-box"
-            ref={boxRef}
-            onMouseDown={beginDrag('move')}
-            onTouchStart={beginDrag('move')}
-          >
-            {(['nw', 'ne', 'sw', 'se'] as const).map((d) => (
-              <div
-                key={d}
-                className={`handle ${d}`}
-                onMouseDown={beginDrag('resize', d)}
-                onTouchStart={beginDrag('resize', d)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-    </section>
-  );
+	return (
+		<section className="crop">
+			<div className="crop-hd">
+				<span>
+					<i className="fas fa-crop-alt" /> 裁剪
+				</span>
+				<div className="crop-actions">
+					<button type="button" className="btn-sm" onClick={apply}>
+						<i className="fas fa-check" /> 应用
+					</button>
+					<button type="button" className="btn-sm btn-outline" onClick={onSkip}>
+						跳过
+					</button>
+				</div>
+			</div>
+			<div
+				className="crop-wrap"
+				ref={wrap}
+				onPointerDown={ptrDown}
+				onPointerMove={ptrMove}
+				onPointerUp={ptrUp}
+				onPointerCancel={ptrUp}
+				onWheel={onWheel}
+				style={{ touchAction: "none" }}
+			>
+				<img
+					src={img.src}
+					alt=""
+					draggable={false}
+					style={{
+						position: "absolute",
+						top: "50%",
+						left: "50%",
+						transform: `translate(calc(-50% + ${s.px}px), calc(-50% + ${s.py}px)) scale(${s.z})`,
+						transformOrigin: "center center",
+						maxWidth: "none",
+						maxHeight: "none",
+					}}
+				/>
+				<div className="crop-overlay" />
+				<div className="crop-frame" />
+				<span className="crop-hint">拖拽 · 滚轮缩放</span>
+			</div>
+		</section>
+	);
 });

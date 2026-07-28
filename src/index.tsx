@@ -1,16 +1,13 @@
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import { App } from './App';
-import './styles.css';
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
+import "./App.css";
 
-// @performance 移除 HTML 骨架 loading，避免 React hydration 后残留
-const container = document.getElementById('root');
-if (!container) throw new Error('Root element not found');
-const loadingEl = container.querySelector('#loading');
-if (loadingEl) loadingEl.remove();
+const root = document.getElementById("root");
+if (!root) throw new Error("Root not found");
 
-createRoot(container).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
+createRoot(root).render(
+	<StrictMode>
+		<App />
+	</StrictMode>,
 );
