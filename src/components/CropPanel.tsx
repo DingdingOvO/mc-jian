@@ -146,11 +146,11 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		<section className="crop">
 			<div className="crop-hd">
 				<span>
-					<IconCrop /> 裁剪区域
+					<IconCrop /> 裁剪
 				</span>
 				<div className="crop-actions">
 					<button type="button" className="btn-sm" onClick={apply}>
-						<IconCheck /> 应用裁剪
+						<IconCheck /> 应用
 					</button>
 					<button type="button" className="btn-sm btn-outline" onClick={onSkip}>
 						跳过
@@ -183,14 +183,7 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 					}}
 				/>
 				<div className="crop-overlay" />
-				<div className="crop-frame">
-					<div className="crop-corners">
-						<span />
-						<span />
-						<span />
-						<span />
-					</div>
-				</div>
+				<div className="crop-frame" />
 				<span className="crop-hint">拖拽平移 / 滚轮或双指缩放</span>
 			</div>
 		</section>

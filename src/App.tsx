@@ -139,7 +139,7 @@ export function App() {
 
 				{showPreview && (
 					<>
-						<section className="section preview-section">
+						<section className="section">
 							<div className="section-hd">
 								<span className="bar" />
 								<IconEye />
