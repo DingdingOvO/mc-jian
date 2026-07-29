@@ -7,7 +7,6 @@ export function Header() {
 			</div>
 			<p className="header-sub">
 				<span className="badge">NEW</span> 给你的头像戴上 MC 挂件
-				<span className="badge badge-beta">BETA</span>
 			</p>
 		</header>
 	);
