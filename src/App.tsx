@@ -11,6 +11,7 @@ import {
 	IconExpand,
 	IconEye,
 	IconGithub,
+	IconUpload,
 } from "./components/Icons";
 import { OverlayPicker } from "./components/OverlayPicker";
 import { Preview } from "./components/Preview";
@@ -119,7 +120,7 @@ export function App() {
 				<section className="section">
 					<div className="section-hd">
 						<span className="bar" />
-						<IconCrop /> 1. 上传头像
+						<IconUpload /> 1. 上传头像
 					</div>
 					<UploadArea onFile={handleUpload} loading={imgLoading} error={imgError} />
 				</section>

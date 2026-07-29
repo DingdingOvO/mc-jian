@@ -21,7 +21,8 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 
 	const drag = useRef<{ sx: number; sy: number } | null>(null);
 	const pts = useRef<Map<number, { x: number; y: number }>>(new Map());
-	const pinch = useRef<{ d: number; z: number } | null>(null);
+	// 双指缩放：记录初始距离、初始缩放、以及起始中点下的图像坐标点
+	const pinch = useRef<{ d: number; z: number; ix: number; iy: number } | null>(null);
 
 	// 初始缩放
 	useEffect(() => {
@@ -39,10 +40,29 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
 		if (pts.current.size >= 2) {
+			// 进入双指模式
 			const list = Array.from(pts.current.values());
 			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
-			pinch.current = { d: Math.sqrt(dx * dx + dy * dy), z: sRef.current.z };
+			// 最小初始距离 30px，防止手指太近时缩放飞跳
+			const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 30);
+
+			const cur = sRef.current;
+			const container = wrap.current;
+			if (container) {
+				const cr = container.getBoundingClientRect();
+				const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
+				const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
+				// 记录起始中点下的图像坐标，缩放时保持该点不动
+				pinch.current = {
+					d: dist,
+					z: cur.z,
+					ix: (cx - cr.width / 2 - cur.px) / cur.z,
+					iy: (cy - cr.height / 2 - cur.py) / cur.z,
+				};
+			} else {
+				pinch.current = { d: dist, z: cur.z, ix: 0, iy: 0 };
+			}
 			drag.current = null;
 		} else {
 			drag.current = { sx: e.clientX, sy: e.clientY };
@@ -60,21 +80,17 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 				const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 				const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
 				const dist = Math.sqrt(dx * dx + dy * dy);
-				const ratio = Math.max(0.7, Math.min(1.4, dist / p.d));
-				const nz = Math.max(0.3, Math.min(6, p.z * ratio));
+				// 绝对缩放：直接用初始距离算比例，只钳位最终缩放值
+				const nz = Math.max(0.3, Math.min(6, p.z * (dist / p.d)));
 
 				const el = wrap.current;
 				if (el) {
 					const cr = el.getBoundingClientRect();
 					const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
 					const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
-					// 关键：用 cur.z（实际当前缩放）而非 p.z（pinch 开始时缩放）
-					const ix = (cx - cr.width / 2 - cur.px) / cur.z;
-					const iy = (cy - cr.height / 2 - cur.py) / cur.z;
-					const next = { px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz };
+					// 根据固定的图像锚点和当前中点计算新位置
+					const next = { px: cx - cr.width / 2 - p.ix * nz, py: cy - cr.height / 2 - p.iy * nz, z: nz };
 					setS(next);
-					// 更新 pinch 基准，使下次 move 基于最新状态增量计算
-					pinch.current = { d: dist, z: nz };
 				}
 				return;
 			}
@@ -90,8 +106,16 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 
 	const ptrUp = useCallback((e: React.PointerEvent) => {
 		pts.current.delete(e.pointerId);
-		if (pts.current.size < 2) pinch.current = null;
-		if (pts.current.size === 0) drag.current = null;
+		if (pts.current.size < 2) {
+			pinch.current = null;
+		}
+		if (pts.current.size === 1) {
+			// 双指转单指：用剩余指针的当前位置初始化拖拽
+			const remaining = Array.from(pts.current.values())[0];
+			if (remaining) drag.current = { sx: remaining.x, sy: remaining.y };
+		} else {
+			drag.current = null;
+		}
 	}, []);
 
 	const onWheel = useCallback(

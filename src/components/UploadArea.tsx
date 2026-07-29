@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef, useState } from "react";
-import { IconAlertCircle, IconSpinner, IconUpload } from "./Icons";
+import { IconAlertCircle, IconCheck, IconSpinner, IconUpload } from "./Icons";
 
 interface Props {
 	onFile: (f: File) => void;
@@ -52,7 +52,9 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 			onDrop={onDrop}
 		>
 			<label htmlFor="fu">
-				<div className="upload-icon">{loading ? <IconSpinner /> : error ? <IconAlertCircle /> : <IconUpload />}</div>
+				<div className="upload-icon">
+					{loading ? <IconSpinner /> : error ? <IconAlertCircle /> : drag ? <IconCheck /> : <IconUpload />}
+				</div>
 				<span className="upload-text">
 					{loading ? "处理中..." : drag ? "松开上传" : error ? error : "选择或拖拽头像"}
 				</span>
