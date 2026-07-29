@@ -138,8 +138,8 @@ export function App() {
 				)}
 
 				{showPreview && (
-					<>
-						<section className="section">
+					<div className="wide-layout">
+						<section className="section wide-left">
 							<div className="section-hd">
 								<span className="bar" />
 								<IconEye />
@@ -205,7 +205,7 @@ export function App() {
 							</div>
 						</section>
 
-						<section className="section">
+						<section className="section wide-right">
 							<OverlayPicker
 								items={OVERLAYS}
 								activeId={overlayId}
@@ -215,7 +215,7 @@ export function App() {
 								onToggle={() => setPickerOpen((v) => !v)}
 							/>
 						</section>
-					</>
+					</div>
 				)}
 			</main>
 
