@@ -1,6 +1,18 @@
 import { useCallback, useDeferredValue, useEffect, useState } from "react";
 import { CropPanel } from "./components/CropPanel";
 import { Header } from "./components/Header";
+import {
+	IconArrowsH,
+	IconArrowsV,
+	IconBilibili,
+	IconCode,
+	IconCrop,
+	IconDownload,
+	IconExpand,
+	IconEye,
+	IconGithub,
+	IconUpload,
+} from "./components/Icons";
 import { OverlayPicker } from "./components/OverlayPicker";
 import { Preview } from "./components/Preview";
 import { UploadArea } from "./components/UploadArea";
@@ -12,7 +24,7 @@ import type { CropRect } from "./types";
 const DEFAULT_CROP: CropRect = { x: 0, y: 0, w: 1, h: 1 };
 
 export function App() {
-	const { imgRef, dataUrl, loading: imgLoading, load, reset } = useImageLoader();
+	const { imgRef, dataUrl, loading: imgLoading, error: imgError, load, reset } = useImageLoader();
 	const { cacheRef, status } = useOverlayCache(OVERLAYS);
 
 	const [cropRect, setCropRect] = useState<CropRect>(DEFAULT_CROP);
@@ -91,7 +103,7 @@ export function App() {
 			ctx.drawImage(ov, lx, ly, ls, ls);
 		}
 
-		const label = overlayId; // overlayId 是纯英文: le, copper_golem, chick...
+		const label = overlayId;
 
 		const a = document.createElement("a");
 		a.download = `MC_${label}.png`;
@@ -108,16 +120,16 @@ export function App() {
 				<section className="section">
 					<div className="section-hd">
 						<span className="bar" />
-						<i className="fas fa-cloud-upload-alt" /> 1. 上传头像
+						<IconUpload /> 1. 上传头像
 					</div>
-					<UploadArea onFile={handleUpload} loading={imgLoading} />
+					<UploadArea onFile={handleUpload} loading={imgLoading} error={imgError} />
 				</section>
 
 				{showCrop && img && (
 					<section className="section">
 						<div className="section-hd">
 							<span className="bar" />
-							<i className="fas fa-crop-alt" /> 2. 裁剪 (1:1)
+							<IconCrop /> 2. 裁剪 (1:1)
 						</div>
 						<CropPanel img={img} onCrop={handleCrop} onSkip={handleSkip} />
 					</section>
@@ -128,7 +140,7 @@ export function App() {
 						<section className="section">
 							<div className="section-hd">
 								<span className="bar" />
-								<i className="fas fa-eye" /> 3. 预览与调整
+								<IconEye /> 3. 预览与调整
 							</div>
 							<Preview
 								img={img}
@@ -141,7 +153,7 @@ export function App() {
 							/>
 							<div className="controls">
 								<label className="ctrl">
-									<i className="fas fa-expand" />
+									<IconExpand />
 									<span>占比</span>
 									<input
 										type="range"
@@ -154,7 +166,7 @@ export function App() {
 									<span className="ctrl-val">{scale}%</span>
 								</label>
 								<label className="ctrl">
-									<i className="fas fa-arrows-alt-h" />
+									<IconArrowsH />
 									<span>水平</span>
 									<input
 										type="range"
@@ -167,7 +179,7 @@ export function App() {
 									<span className="ctrl-val">{ox}</span>
 								</label>
 								<label className="ctrl">
-									<i className="fas fa-arrows-alt-v" />
+									<IconArrowsV />
 									<span>垂直</span>
 									<input
 										type="range"
@@ -182,10 +194,10 @@ export function App() {
 							</div>
 							<div className="preview-actions">
 								<button type="button" className="btn-sm btn-outline" onClick={handleReCrop}>
-									<i className="fas fa-crop-alt" /> 重新裁剪
+									<IconCrop /> 重新裁剪
 								</button>
 								<button type="button" className="btn-dl" onClick={handleDownload}>
-									<i className="fas fa-download" /> 下载 PNG
+									<IconDownload /> 下载 PNG
 								</button>
 							</div>
 						</section>
@@ -204,24 +216,22 @@ export function App() {
 				)}
 			</main>
 
-			{!showPreview && (
-				<footer className="footer">
-					<a className="footer-btn gh" href="https://github.com/DingdingOvO" target="_blank" rel="noopener noreferrer">
-						<i className="fab fa-github" /> DingdingOvO
-					</a>
-					<a className="footer-btn bi" href="https://b23.tv/zXfgdpu" target="_blank" rel="noopener noreferrer">
-						<i className="fa-brands fa-bilibili" /> 丁丁QZ
-					</a>
-					<a
-						className="footer-btn src"
-						href="https://github.com/DingdingOvO/mc-jian"
-						target="_blank"
-						rel="noopener noreferrer"
-					>
-						<i className="fas fa-code" /> 源代码
-					</a>
-				</footer>
-			)}
+			<footer className="footer">
+				<a className="footer-btn gh" href="https://github.com/DingdingOvO" target="_blank" rel="noopener noreferrer">
+					<IconGithub /> DingdingOvO
+				</a>
+				<a className="footer-btn bi" href="https://b23.tv/zXfgdpu" target="_blank" rel="noopener noreferrer">
+					<IconBilibili /> 丁丁QZ
+				</a>
+				<a
+					className="footer-btn src"
+					href="https://github.com/DingdingOvO/mc-jian"
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					<IconCode /> 源代码
+				</a>
+			</footer>
 		</>
 	);
 }
