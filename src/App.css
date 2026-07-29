@@ -1,27 +1,27 @@
 :root {
-	--primary: #c97830;
-	--primary-h: #a86120;
-	--primary-s: #fef0df;
-	--ink: #1a1f2e;
-	--ink-s: #5b6170;
-	--ink-m: #929aa8;
-	--bg: #f5f1ea;
-	--bg2: #ebe5db;
-	--surface: #fff;
-	--line: #e6e0d8;
-	--line-s: #cbc4bc;
-	--r: 12px;
-	--ease: cubic-bezier(0.4, 0, 0.2, 1);
+        --primary: #c97830;
+        --primary-h: #a86120;
+        --primary-s: #fef0df;
+        --ink: #1a1f2e;
+        --ink-s: #5b6170;
+        --ink-m: #929aa8;
+        --bg: #f5f1ea;
+        --bg2: #ebe5db;
+        --surface: #fff;
+        --line: #e6e0d8;
+        --line-s: #cbc4bc;
+        --r: 12px;
+        --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ── Reset & Base ── */
 @keyframes fadeUp {
-	from { opacity: 0; transform: translateY(12px); }
-	to { opacity: 1; transform: translateY(0); }
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
 }
 @keyframes spin {
-	from { transform: rotate(0deg); }
-	to { transform: rotate(360deg); }
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
 }
 .section { animation: fadeUp 0.3s var(--ease) both; }
 .section:nth-child(2) { animation-delay: 0.05s; }
@@ -36,15 +36,15 @@ button, input, label { -webkit-touch-callout: none; user-select: none; }
 
 html { height: 100%; background: var(--bg); }
 body {
-	font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-	color: var(--ink);
-	background: linear-gradient(180deg, var(--bg), var(--bg2));
-	background-attachment: fixed;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	min-height: 100vh;
-	padding: 20px 12px 30px;
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, var(--bg), var(--bg2));
+        background-attachment: fixed;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px 12px 30px;
 }
 button { font: inherit; cursor: pointer; }
 input { font: inherit; }
@@ -133,7 +133,7 @@ input { font: inherit; }
 .picker-body.open { max-height: 300px; opacity: 1; margin-top: 12px; }
 .picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .picker-card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--r); padding: 12px 6px 10px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.picker-card:hover { border-color: var(--line-s); transform: translateY(-1px); }
+.picker-card:hover { border-color: var(--line-s); }
 .picker-card.active { border-color: var(--primary); background: var(--primary-s); }
 .picker-card:active { transform: scale(0.97); }
 .picker-thumb { width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
@@ -155,20 +155,20 @@ input { font: inherit; }
 
 /* ── Responsive ── */
 @media (max-width: 600px) {
-	body { padding: 16px 10px 20px; }
-	.section { padding: 16px; border-radius: 12px; }
-	.picker-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-	.picker-thumb { width: 56px; height: 56px; }
-	.ctrl { padding: 8px 10px; gap: 6px; }
-	.ctrl svg { display: none; }
-	.header-icon { height: 60px; }
-	.header-logo { height: 36px; }
+        body { padding: 16px 10px 20px; }
+        .section { padding: 16px; border-radius: 12px; }
+        .picker-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .picker-thumb { width: 56px; height: 56px; }
+        .ctrl { padding: 8px 10px; gap: 6px; }
+        .ctrl svg { display: none; }
+        .header-icon { height: 60px; }
+        .header-logo { height: 36px; }
 }
 @media (max-width: 420px) {
-	.picker-grid { grid-template-columns: repeat(2, 1fr); }
-	.header-logo { height: 32px; }
-	.header-icon { height: 52px; }
+        .picker-grid { grid-template-columns: repeat(2, 1fr); }
+        .header-logo { height: 32px; }
+        .header-icon { height: 52px; }
 }
 @media (min-width: 900px) {
-	.picker-grid { grid-template-columns: repeat(4, 1fr); }
+        .picker-grid { grid-template-columns: repeat(4, 1fr); }
 }
