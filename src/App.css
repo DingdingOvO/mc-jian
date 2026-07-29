@@ -153,11 +153,6 @@ input { font: inherit; }
 .footer-btn.src { opacity: 0.35; }
 .footer-btn.src:hover { opacity: 0.6; }
 
-/* ── Wide layout ── */
-.wide-layout { display: flex; flex-direction: column; gap: 16px; }
-.wide-left { margin-bottom: 0; }
-.wide-right { margin-bottom: 0; }
-
 /* ── Responsive ── */
 @media (max-width: 600px) {
         body { padding: 16px 10px 20px; }
@@ -175,11 +170,5 @@ input { font: inherit; }
         .header-icon { height: 52px; }
 }
 @media (min-width: 900px) {
-        .main { max-width: 960px; }
-        .header { max-width: 960px; }
-        .footer { max-width: 960px; }
-        .wide-layout { flex-direction: row; gap: 16px; }
-        .wide-left { flex: 1; min-width: 0; }
-        .wide-right { width: 320px; flex-shrink: 0; }
-        .picker-grid { grid-template-columns: repeat(2, 1fr); }
+        .picker-grid { grid-template-columns: repeat(4, 1fr); }
 }
