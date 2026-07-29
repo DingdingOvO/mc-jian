@@ -8,12 +8,16 @@ interface Props {
 	onSkip: () => void;
 }
 
-/** 裁剪 — 纯 CSS transform + Pointer Events，无 canvas */
 export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props) {
 	const wrap = useRef<HTMLDivElement>(null);
-	const [s, setS] = useState({ px: 0, py: 0, z: 1 });
+	const [s, setSState] = useState({ px: 0, py: 0, z: 1 });
+
+	// 同步 ref，setS 时立即更新，避免 pointermove 之间读 stale state
 	const sRef = useRef(s);
-	sRef.current = s;
+	const setS = useCallback((next: { px: number; py: number; z: number }) => {
+		sRef.current = next;
+		setSState(next);
+	}, []);
 
 	const drag = useRef<{ sx: number; sy: number } | null>(null);
 	const pts = useRef<Map<number, { x: number; y: number }>>(new Map());
@@ -24,7 +28,9 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		const w = wrap.current?.clientWidth ?? 400;
 		const fp = Math.min(w, 500) * 0.88;
 		const z = Math.max(0.3, Math.min(6, fp / Math.min(img.naturalWidth, img.naturalHeight)));
-		setS({ px: 0, py: 0, z });
+		const next = { px: 0, py: 0, z };
+		sRef.current = next;
+		setSState(next);
 	}, [img]);
 
 	const ptrDown = useCallback((e: React.PointerEvent) => {
@@ -43,36 +49,44 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		}
 	}, []);
 
-	const ptrMove = useCallback((e: React.PointerEvent) => {
-		pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-		const p = pinch.current;
-		const cur = sRef.current;
+	const ptrMove = useCallback(
+		(e: React.PointerEvent) => {
+			pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+			const p = pinch.current;
+			const cur = sRef.current;
 
-		if (p && pts.current.size >= 2) {
-			const list = Array.from(pts.current.values());
-			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
-			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
-			const dist = Math.sqrt(dx * dx + dy * dy);
-			const ratio = Math.max(0.7, Math.min(1.4, dist / p.d));
-			const nz = Math.max(0.3, Math.min(6, p.z * ratio));
+			if (p && pts.current.size >= 2) {
+				const list = Array.from(pts.current.values());
+				const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
+				const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
+				const dist = Math.sqrt(dx * dx + dy * dy);
+				const ratio = Math.max(0.7, Math.min(1.4, dist / p.d));
+				const nz = Math.max(0.3, Math.min(6, p.z * ratio));
 
-			const el = wrap.current;
-			if (el) {
-				const cr = el.getBoundingClientRect();
-				const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
-				const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
-				const ix = (cx - cr.width / 2 - cur.px) / p.z;
-				const iy = (cy - cr.height / 2 - cur.py) / p.z;
-				setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
+				const el = wrap.current;
+				if (el) {
+					const cr = el.getBoundingClientRect();
+					const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
+					const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
+					// 关键：用 cur.z（实际当前缩放）而非 p.z（pinch 开始时缩放）
+					const ix = (cx - cr.width / 2 - cur.px) / cur.z;
+					const iy = (cy - cr.height / 2 - cur.py) / cur.z;
+					const next = { px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz };
+					setS(next);
+					// 更新 pinch 基准，使下次 move 基于最新状态增量计算
+					pinch.current = { d: dist, z: nz };
+				}
+				return;
 			}
-			return;
-		}
 
-		const d = drag.current;
-		if (!d) return;
-		setS({ ...cur, px: cur.px + (e.clientX - d.sx), py: cur.py + (e.clientY - d.sy) });
-		drag.current = { sx: e.clientX, sy: e.clientY };
-	}, []);
+			const d = drag.current;
+			if (!d) return;
+			const next = { ...cur, px: cur.px + (e.clientX - d.sx), py: cur.py + (e.clientY - d.sy) };
+			setS(next);
+			drag.current = { sx: e.clientX, sy: e.clientY };
+		},
+		[setS],
+	);
 
 	const ptrUp = useCallback((e: React.PointerEvent) => {
 		pts.current.delete(e.pointerId);
@@ -80,18 +94,21 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		if (pts.current.size === 0) drag.current = null;
 	}, []);
 
-	const onWheel = useCallback((e: React.WheelEvent) => {
-		const cur = sRef.current;
-		const el = e.currentTarget;
-		const cr = el.getBoundingClientRect();
-		const cx = e.clientX - cr.left;
-		const cy = e.clientY - cr.top;
-		const ratio = e.deltaY > 0 ? 0.9 : 1.1;
-		const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
-		const ix = (cx - cr.width / 2 - cur.px) / cur.z;
-		const iy = (cy - cr.height / 2 - cur.py) / cur.z;
-		setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
-	}, []);
+	const onWheel = useCallback(
+		(e: React.WheelEvent) => {
+			const cur = sRef.current;
+			const el = e.currentTarget;
+			const cr = el.getBoundingClientRect();
+			const cx = e.clientX - cr.left;
+			const cy = e.clientY - cr.top;
+			const ratio = e.deltaY > 0 ? 0.9 : 1.1;
+			const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
+			const ix = (cx - cr.width / 2 - cur.px) / cur.z;
+			const iy = (cy - cr.height / 2 - cur.py) / cur.z;
+			setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
+		},
+		[setS],
+	);
 
 	const apply = useCallback(() => {
 		const el = wrap.current;

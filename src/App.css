@@ -70,7 +70,7 @@ input { font: inherit; }
 .upload.error .upload-text { color: #c33; }
 .upload label { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; color: var(--ink-s); font-weight: 500; }
 .upload-icon { width: 48px; height: 48px; background: var(--primary-s); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
-.upload-icon svg { color: var(--primary); }
+.upload-icon svg { color: var(--primary); width: 22px; height: 22px; }
 .upload-text { font-size: 0.92rem; font-weight: 600; color: var(--ink); transition: color 0.15s; }
 .upload-hint { font-size: 0.75rem; color: var(--ink-m); }
 
@@ -79,6 +79,7 @@ input { font: inherit; }
 .crop-hd svg { color: var(--primary); width: 14px; height: 14px; vertical-align: -1px; }
 .crop-hd > span { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 .crop-actions { display: flex; gap: 8px; }
+.btn-sm svg { width: 14px; height: 14px; vertical-align: -1px; }
 .btn-sm { background: var(--primary); color: #fff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: background 0.1s; }
 .btn-sm:hover { background: var(--primary-h); }
 .btn-outline { background: transparent; color: var(--ink-s); border: 1px solid var(--line-s); }
@@ -114,6 +115,7 @@ input { font: inherit; }
 .ctrl input[type="range"]:hover::-moz-range-thumb { transform: scale(1.1); }
 .ctrl-val { min-width: 48px; text-align: right; font-weight: 700; font-size: 0.9rem; font-variant-numeric: tabular-nums; color: var(--ink); }
 
+.btn-dl svg { width: 18px; height: 18px; }
 .btn-dl { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 48px; background: var(--primary); color: #fff; border: none; border-radius: var(--r); font-size: 1rem; font-weight: 700; cursor: pointer; transition: background 0.12s, transform 0.08s; }
 .btn-dl:hover:not(:disabled) { background: var(--primary-h); }
 .btn-dl:active:not(:disabled) { transform: scale(0.98); }
@@ -124,7 +126,7 @@ input { font: inherit; }
 .picker-hd:hover { color: var(--ink); }
 .picker-hd .bar { width: 3px; height: 14px; background: var(--primary); border-radius: 2px; }
 .picker-hd svg { color: var(--primary); width: 16px; height: 16px; vertical-align: -2px; }
-.picker-arrow { margin-left: auto; color: var(--ink-m); display: inline-flex; transition: transform 0.2s ease; }
+.picker-arrow { margin-left: auto; color: var(--ink-m); display: inline-flex; width: 12px; height: 12px; transition: transform 0.2s ease; }
 .picker-arrow.open { transform: rotate(180deg); }
 .picker-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s ease; max-height: 0; opacity: 0; margin-top: 0; }
 .picker-body.open { max-height: 300px; opacity: 1; margin-top: 12px; }
