@@ -21,8 +21,8 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 
 	const drag = useRef<{ sx: number; sy: number } | null>(null);
 	const pts = useRef<Map<number, { x: number; y: number }>>(new Map());
-	// 双指缩放：记录初始距离、初始缩放、以及起始中点下的图像坐标点
-	const pinch = useRef<{ d: number; z: number; ix: number; iy: number } | null>(null);
+	// 双指缩放：初始距离、初始缩放、初始平移、起始中点
+	const pinch = useRef<{ d: number; z: number; px0: number; py0: number; mx0: number; my0: number } | null>(null);
 
 	// 初始缩放
 	useEffect(() => {
@@ -44,25 +44,18 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 			const list = Array.from(pts.current.values());
 			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
-			// 最小初始距离 30px，防止手指太近时缩放飞跳
 			const dist = Math.max(Math.sqrt(dx * dx + dy * dy), 30);
 
 			const cur = sRef.current;
 			const container = wrap.current;
+			let mx0 = 0;
+			let my0 = 0;
 			if (container) {
 				const cr = container.getBoundingClientRect();
-				const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
-				const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
-				// 记录起始中点下的图像坐标，缩放时保持该点不动
-				pinch.current = {
-					d: dist,
-					z: cur.z,
-					ix: (cx - cr.width / 2 - cur.px) / cur.z,
-					iy: (cy - cr.height / 2 - cur.py) / cur.z,
-				};
-			} else {
-				pinch.current = { d: dist, z: cur.z, ix: 0, iy: 0 };
+				mx0 = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
+				my0 = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
 			}
+			pinch.current = { d: dist, z: cur.z, px0: cur.px, py0: cur.py, mx0, my0 };
 			drag.current = null;
 		} else {
 			drag.current = { sx: e.clientX, sy: e.clientY };
@@ -80,17 +73,20 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 				const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 				const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
 				const dist = Math.sqrt(dx * dx + dy * dy);
-				// 绝对缩放：直接用初始距离算比例，只钳位最终缩放值
+				// 缩放：绝对比例，围绕中心
 				const nz = Math.max(0.3, Math.min(6, p.z * (dist / p.d)));
+				const zoomScale = nz / p.z;
 
 				const el = wrap.current;
 				if (el) {
 					const cr = el.getBoundingClientRect();
-					const cx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
-					const cy = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
-					// 根据固定的图像锚点和当前中点计算新位置
-					const next = { px: cx - cr.width / 2 - p.ix * nz, py: cy - cr.height / 2 - p.iy * nz, z: nz };
-					setS(next);
+					const mx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
+					const my = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
+					// 平移：中点移动量
+					const panDx = mx - p.mx0;
+					const panDy = my - p.my0;
+					// 缩放和平移解耦：缩放按比例缩放初始偏移，平移直接叠加
+					setS({ px: p.px0 * zoomScale + panDx, py: p.py0 * zoomScale + panDy, z: nz });
 				}
 				return;
 			}
@@ -121,15 +117,11 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 	const onWheel = useCallback(
 		(e: React.WheelEvent) => {
 			const cur = sRef.current;
-			const el = e.currentTarget;
-			const cr = el.getBoundingClientRect();
-			const cx = e.clientX - cr.left;
-			const cy = e.clientY - cr.top;
 			const ratio = e.deltaY > 0 ? 0.9 : 1.1;
 			const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
-			const ix = (cx - cr.width / 2 - cur.px) / cur.z;
-			const iy = (cy - cr.height / 2 - cur.py) / cur.z;
-			setS({ px: cx - cr.width / 2 - ix * nz, py: cy - cr.height / 2 - iy * nz, z: nz });
+			// 缩放围绕中心，和平移完全解耦
+			const zoomScale = nz / cur.z;
+			setS({ px: cur.px * zoomScale, py: cur.py * zoomScale, z: nz });
 		},
 		[setS],
 	);
