@@ -120,7 +120,8 @@ export function App() {
 				<section className="section">
 					<div className="section-hd">
 						<span className="bar" />
-						<IconUpload /> 1. 上传头像
+						<IconUpload />
+						<span>1. 上传头像</span>
 					</div>
 					<UploadArea onFile={handleUpload} loading={imgLoading} error={imgError} />
 				</section>
@@ -129,7 +130,8 @@ export function App() {
 					<section className="section">
 						<div className="section-hd">
 							<span className="bar" />
-							<IconCrop /> 2. 裁剪 (1:1)
+							<IconCrop />
+							<span>2. 裁剪 (1:1)</span>
 						</div>
 						<CropPanel img={img} onCrop={handleCrop} onSkip={handleSkip} />
 					</section>
@@ -137,10 +139,11 @@ export function App() {
 
 				{showPreview && (
 					<>
-						<section className="section">
+						<section className="section preview-section">
 							<div className="section-hd">
 								<span className="bar" />
-								<IconEye /> 3. 预览与调整
+								<IconEye />
+								<span>3. 预览与调整</span>
 							</div>
 							<Preview
 								img={img}

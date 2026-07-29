@@ -1,5 +1,5 @@
 import { memo, useCallback, useRef, useState } from "react";
-import { IconAlertCircle, IconCheck, IconSpinner, IconUpload } from "./Icons";
+import { IconAlertCircle, IconCheck, IconImage, IconSpinner, IconUpload } from "./Icons";
 
 interface Props {
 	onFile: (f: File) => void;
@@ -9,12 +9,19 @@ interface Props {
 
 export const UploadArea = memo(function UploadArea({ onFile, loading, error }: Props) {
 	const [drag, setDrag] = useState(false);
+	const [fileName, setFileName] = useState<string | null>(null);
+	const [thumbUrl, setThumbUrl] = useState<string | null>(null);
 	const cnt = useRef(0);
 
 	const onChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const f = e.target.files?.[0];
-			if (f) onFile(f);
+			if (f) {
+				setFileName(f.name);
+				const url = URL.createObjectURL(f);
+				setThumbUrl(url);
+				onFile(f);
+			}
 			e.target.value = "";
 		},
 		[onFile],
@@ -37,10 +44,17 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 			setDrag(false);
 			cnt.current = 0;
 			const f = e.dataTransfer.files?.[0];
-			if (f) onFile(f);
+			if (f) {
+				setFileName(f.name);
+				const url = URL.createObjectURL(f);
+				setThumbUrl(url);
+				onFile(f);
+			}
 		},
 		[onFile],
 	);
+
+	const showLoaded = thumbUrl && !loading && !error;
 
 	return (
 		/* biome-ignore lint/a11y/noStaticElementInteractions: drag/drop events */
@@ -52,13 +66,25 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 			onDrop={onDrop}
 		>
 			<label htmlFor="fu">
-				<div className="upload-icon">
-					{loading ? <IconSpinner /> : error ? <IconAlertCircle /> : drag ? <IconCheck /> : <IconUpload />}
-				</div>
-				<span className="upload-text">
-					{loading ? "处理中..." : drag ? "松开上传" : error ? error : "选择或拖拽头像"}
-				</span>
-				{!(loading || drag || error) && <span className="upload-hint">JPG / PNG / WebP</span>}
+				{showLoaded ? (
+					<>
+						<div className="upload-icon">
+							<IconImage />
+						</div>
+						<span className="upload-text">{fileName}</span>
+						<span className="upload-hint">点击重新选择</span>
+					</>
+				) : (
+					<>
+						<div className="upload-icon">
+							{loading ? <IconSpinner /> : error ? <IconAlertCircle /> : drag ? <IconCheck /> : <IconUpload />}
+						</div>
+						<span className="upload-text">
+							{loading ? "处理中..." : drag ? "松开上传" : error ? error : "选择或拖拽头像"}
+						</span>
+						{!(loading || drag || error) && <span className="upload-hint">JPG / PNG / WebP</span>}
+					</>
+				)}
 			</label>
 			<input id="fu" type="file" accept="image/*" hidden onChange={onChange} />
 		</div>
