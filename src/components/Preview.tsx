@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useRef } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { CropRect } from "../types";
 
 interface Props {
@@ -17,11 +17,12 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 	const avatarBuf = useRef<HTMLCanvasElement | null>(null);
 	const compBuf = useRef<HTMLCanvasElement | null>(null);
 	const cropKey = useRef("");
+	const [outSize, setOutSize] = useState(0);
 
 	const updateSize = useCallback(() => {
 		const c = ref.current;
 		const w = wrapRef.current?.clientWidth ?? 280;
-		const size = Math.min(w, 320);
+		const size = Math.min(w - 32, 320);
 		if (c) {
 			c.style.width = `${size}px`;
 			c.style.height = `${size}px`;
@@ -46,9 +47,10 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		const out = Math.round(sw);
 		if (out < 1) return;
 
+		setOutSize(out);
+
 		const key = `${sx.toFixed(1)},${sy.toFixed(1)},${out}`;
 
-		// crop changed -> rebuild avatar cache
 		if (key !== cropKey.current) {
 			cropKey.current = key;
 			const b = document.createElement("canvas");
@@ -65,7 +67,6 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		const base = avatarBuf.current;
 		if (!base) return;
 
-		// reuse composite buffer
 		let comp = compBuf.current;
 		if (!comp || comp.width !== out || comp.height !== out) {
 			comp = document.createElement("canvas");
@@ -88,7 +89,6 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 			cc.drawImage(overlay, lx, ly, ls, ls);
 		}
 
-		// output to visible canvas
 		c.width = out;
 		c.height = out;
 		const ctx = c.getContext("2d");
@@ -101,6 +101,11 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 	return (
 		<div className="preview-wrap" ref={wrapRef}>
 			<canvas ref={ref} className="preview-canvas" />
+			{outSize > 0 && (
+				<span className="preview-size">
+					{outSize} x {outSize}
+				</span>
+			)}
 		</div>
 	);
 });

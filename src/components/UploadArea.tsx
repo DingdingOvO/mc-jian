@@ -9,12 +9,16 @@ interface Props {
 
 export const UploadArea = memo(function UploadArea({ onFile, loading, error }: Props) {
 	const [drag, setDrag] = useState(false);
+	const [fileName, setFileName] = useState<string | null>(null);
 	const cnt = useRef(0);
 
 	const onChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			const f = e.target.files?.[0];
-			if (f) onFile(f);
+			if (f) {
+				setFileName(f.name);
+				onFile(f);
+			}
 			e.target.value = "";
 		},
 		[onFile],
@@ -37,13 +41,16 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 			setDrag(false);
 			cnt.current = 0;
 			const f = e.dataTransfer.files?.[0];
-			if (f) onFile(f);
+			if (f) {
+				setFileName(f.name);
+				onFile(f);
+			}
 		},
 		[onFile],
 	);
 
 	return (
-		/* biome-ignore lint/a11y/noStaticElementInteractions: drag/drop events */
+		/* biome-ignore lint/a11y/noStaticElementInteractions: drag/drop */
 		<div
 			className={`upload${drag ? " drag" : ""}${error ? " error" : ""}`}
 			onDragEnter={onDragEnter}
@@ -56,9 +63,10 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 					{loading ? <IconSpinner /> : error ? <IconAlertCircle /> : drag ? <IconCheck /> : <IconUpload />}
 				</div>
 				<span className="upload-text">
-					{loading ? "处理中..." : drag ? "松开上传" : error ? error : "选择或拖拽头像"}
+					{loading ? "处理中..." : drag ? "松开上传" : error ? error : fileName ? fileName : "选择或拖拽头像"}
 				</span>
-				{!(loading || drag || error) && <span className="upload-hint">JPG / PNG / WebP</span>}
+				{!(loading || drag || error || fileName) && <span className="upload-hint">JPG / PNG / WebP</span>}
+				{fileName && !loading && !drag && !error && <span className="upload-hint">点击重新选择</span>}
 			</label>
 			<input id="fu" type="file" accept="image/*" hidden onChange={onChange} />
 		</div>

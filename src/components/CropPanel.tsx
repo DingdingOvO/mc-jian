@@ -12,7 +12,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 	const wrap = useRef<HTMLDivElement>(null);
 	const [s, setSState] = useState({ px: 0, py: 0, z: 1 });
 
-	// 同步 ref，setS 时立即更新，避免 pointermove 之间读 stale state
 	const sRef = useRef(s);
 	const setS = useCallback((next: { px: number; py: number; z: number }) => {
 		sRef.current = next;
@@ -21,10 +20,8 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 
 	const drag = useRef<{ sx: number; sy: number } | null>(null);
 	const pts = useRef<Map<number, { x: number; y: number }>>(new Map());
-	// 双指缩放：初始距离、初始缩放、初始平移、起始中点
 	const pinch = useRef<{ d: number; z: number; px0: number; py0: number; mx0: number; my0: number } | null>(null);
 
-	// 初始缩放
 	useEffect(() => {
 		const w = wrap.current?.clientWidth ?? 400;
 		const fp = Math.min(w, 500) * 0.88;
@@ -40,7 +37,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		pts.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
 
 		if (pts.current.size >= 2) {
-			// 进入双指模式
 			const list = Array.from(pts.current.values());
 			const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 			const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
@@ -73,7 +69,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 				const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 				const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
 				const dist = Math.sqrt(dx * dx + dy * dy);
-				// 缩放：绝对比例，围绕中心
 				const nz = Math.max(0.3, Math.min(6, p.z * (dist / p.d)));
 				const zoomScale = nz / p.z;
 
@@ -82,10 +77,8 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 					const cr = el.getBoundingClientRect();
 					const mx = ((list[0]?.x ?? 0) + (list[1]?.x ?? 0)) / 2 - cr.left;
 					const my = ((list[0]?.y ?? 0) + (list[1]?.y ?? 0)) / 2 - cr.top;
-					// 平移：中点移动量
 					const panDx = mx - p.mx0;
 					const panDy = my - p.my0;
-					// 缩放和平移解耦：缩放按比例缩放初始偏移，平移直接叠加
 					setS({ px: p.px0 * zoomScale + panDx, py: p.py0 * zoomScale + panDy, z: nz });
 				}
 				return;
@@ -106,7 +99,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 			pinch.current = null;
 		}
 		if (pts.current.size === 1) {
-			// 双指转单指：用剩余指针的当前位置初始化拖拽
 			const remaining = Array.from(pts.current.values())[0];
 			if (remaining) drag.current = { sx: remaining.x, sy: remaining.y };
 		} else {
@@ -119,7 +111,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 			const cur = sRef.current;
 			const ratio = e.deltaY > 0 ? 0.9 : 1.1;
 			const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
-			// 缩放围绕中心，和平移完全解耦
 			const zoomScale = nz / cur.z;
 			setS({ px: cur.px * zoomScale, py: cur.py * zoomScale, z: nz });
 		},
