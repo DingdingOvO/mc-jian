@@ -1,5 +1,6 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { CropRect } from "../types";
+import { IconCheck, IconCrop } from "./Icons";
 
 interface Props {
 	img: HTMLImageElement;
@@ -121,11 +122,11 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		<section className="crop">
 			<div className="crop-hd">
 				<span>
-					<i className="fas fa-crop-alt" /> 裁剪
+					<IconCrop /> 裁剪
 				</span>
 				<div className="crop-actions">
 					<button type="button" className="btn-sm" onClick={apply}>
-						<i className="fas fa-check" /> 应用
+						<IconCheck /> 应用
 					</button>
 					<button type="button" className="btn-sm btn-outline" onClick={onSkip}>
 						跳过

@@ -1,4 +1,5 @@
 import { memo, useCallback, useRef, useState } from "react";
+import { IconCheck, IconSpinner, IconUpload } from "./Icons";
 
 interface Props {
 	onFile: (f: File) => void;
@@ -50,10 +51,8 @@ export const UploadArea = memo(function UploadArea({ onFile, loading }: Props) {
 			onDrop={onDrop}
 		>
 			<label htmlFor="fu">
-				<div className="upload-icon">
-					<i className={`fas ${loading ? "fa-spinner fa-pulse" : drag ? "fa-check" : "fa-cloud-upload-alt"}`} />
-				</div>
-				<span className="upload-text">{loading ? "处理中…" : drag ? "松开上传" : "选择或拖拽头像"}</span>
+				<div className="upload-icon">{loading ? <IconSpinner /> : drag ? <IconCheck /> : <IconUpload />}</div>
+				<span className="upload-text">{loading ? "处理中..." : drag ? "松开上传" : "选择或拖拽头像"}</span>
 				<span className="upload-hint">JPG / PNG / WebP</span>
 			</label>
 			<input id="fu" type="file" accept="image/*" hidden onChange={onChange} />

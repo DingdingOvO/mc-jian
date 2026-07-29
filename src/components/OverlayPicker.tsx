@@ -1,5 +1,6 @@
 import { memo } from "react";
 import type { OverlayAsset } from "../types";
+import { IconShapes } from "./Icons";
 
 interface Props {
 	items: OverlayAsset[];
@@ -15,7 +16,7 @@ export const OverlayPicker = memo(function OverlayPicker({ items, activeId, onCh
 		<section className="picker">
 			<button className="picker-hd" onClick={onToggle} type="button">
 				<span className="bar" />
-				<i className="fas fa-shapes" />
+				<IconShapes />
 				选择挂件
 				<span className="picker-arrow">{open ? "▲" : "▼"}</span>
 			</button>
