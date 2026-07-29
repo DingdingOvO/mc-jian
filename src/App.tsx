@@ -81,6 +81,18 @@ export function App() {
 		applyTheme(theme);
 	}, [theme]);
 
+	// 跟随系统模式时，监听 OS 主题切换
+	useEffect(() => {
+		if (theme !== "system") return;
+		const mq = window.matchMedia("(prefers-color-scheme: dark)");
+		const onChange = () => {
+			// 强制刷新 data-theme，保证 JS 层与 CSS 层同步
+			document.documentElement.removeAttribute("data-theme");
+		};
+		mq.addEventListener("change", onChange);
+		return () => mq.removeEventListener("change", onChange);
+	}, [theme]);
+
 	useEffect(() => {
 		if (dataUrl && imgRef.current && !showCrop && !cropDone) {
 			setShowCrop(true);
