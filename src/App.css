@@ -81,6 +81,7 @@ input { font: inherit; }
 .header-icon { height: 72px; width: auto; display: block; filter: drop-shadow(0 2px 4px rgba(201,120,48,0.18)); }
 .header-sub { font-size: 0.82rem; color: var(--ink-s); margin-top: 6px; }
 .badge { display: inline-block; background: var(--primary-s); color: var(--primary-h); font-size: 0.58rem; font-weight: 700; padding: 1px 7px; border-radius: 6px; vertical-align: middle; margin-right: 2px; }
+.badge-beta { background: transparent; color: var(--primary); border: 1.5px solid var(--primary); margin-left: 4px; }
 
 /* ── Theme Toggle ── */
 .theme-toggle { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 2px; margin-top: 8px; gap: 1px; }
