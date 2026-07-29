@@ -5,6 +5,7 @@ import {
 	IconArrowsH,
 	IconArrowsV,
 	IconBilibili,
+	IconChevron,
 	IconCode,
 	IconCrop,
 	IconDownload,
@@ -84,6 +85,7 @@ export function App() {
 	const deferredOx = useDeferredValue(ox);
 	const deferredOy = useDeferredValue(oy);
 	const [pickerOpen, setPickerOpen] = useState(true);
+	const [fmtOpen, setFmtOpen] = useState(false);
 
 	const cacheReady = status[overlayId]?.loaded ?? false;
 	const img = imgRef.current;
@@ -296,18 +298,31 @@ export function App() {
 								<button type="button" className="btn-sm btn-outline" onClick={handleReCrop}>
 									<IconCrop /> 重新裁剪
 								</button>
-								<select
-									className="fmt-select"
-									value={exportFmt}
-									onChange={(e) => setExportFmt(e.target.value as ExportFmt)}
-								>
-									<option value="png">PNG</option>
-									<option value="jpeg">JPEG</option>
-									<option value="webp">WebP</option>
-								</select>
-								<button type="button" className="btn-dl" onClick={handleDownload}>
-									<IconDownload /> 下载 {FMT_LABELS[exportFmt]}
-								</button>
+								<div className="btn-dl-split">
+									<button type="button" className="btn-dl" onClick={handleDownload}>
+										<IconDownload /> 下载 {FMT_LABELS[exportFmt]}
+									</button>
+									<button type="button" className="btn-dl-arrow" onClick={() => setFmtOpen((v) => !v)} title="切换格式">
+										<IconChevron />
+									</button>
+									{fmtOpen && (
+										<div className="fmt-drop">
+											{(["png", "jpeg", "webp"] as ExportFmt[]).map((f) => (
+												<button
+													key={f}
+													type="button"
+													className={`fmt-opt${f === exportFmt ? " active" : ""}`}
+													onClick={() => {
+														setExportFmt(f);
+														setFmtOpen(false);
+													}}
+												>
+													{FMT_LABELS[f]}
+												</button>
+											))}
+										</div>
+									)}
+								</div>
 							</div>
 						</section>
 
