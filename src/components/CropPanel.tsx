@@ -155,11 +155,12 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 						transformOrigin: "center center",
 						maxWidth: "none",
 						maxHeight: "none",
+						willChange: "transform",
 					}}
 				/>
 				<div className="crop-overlay" />
 				<div className="crop-frame" />
-				<span className="crop-hint">拖拽 · 滚轮缩放</span>
+				<span className="crop-hint">拖拽平移 / 滚轮或双指缩放</span>
 			</div>
 		</section>
 	);

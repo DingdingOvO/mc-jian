@@ -23,7 +23,7 @@ import type { CropRect } from "./types";
 const DEFAULT_CROP: CropRect = { x: 0, y: 0, w: 1, h: 1 };
 
 export function App() {
-	const { imgRef, dataUrl, loading: imgLoading, load, reset } = useImageLoader();
+	const { imgRef, dataUrl, loading: imgLoading, error: imgError, load, reset } = useImageLoader();
 	const { cacheRef, status } = useOverlayCache(OVERLAYS);
 
 	const [cropRect, setCropRect] = useState<CropRect>(DEFAULT_CROP);
@@ -121,7 +121,7 @@ export function App() {
 						<span className="bar" />
 						<IconCrop /> 1. 上传头像
 					</div>
-					<UploadArea onFile={handleUpload} loading={imgLoading} />
+					<UploadArea onFile={handleUpload} loading={imgLoading} error={imgError} />
 				</section>
 
 				{showCrop && img && (
