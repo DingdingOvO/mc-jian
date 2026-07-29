@@ -11,6 +11,9 @@ import {
 	IconExpand,
 	IconEye,
 	IconGithub,
+	IconMonitor,
+	IconMoon,
+	IconSun,
 	IconUpload,
 } from "./components/Icons";
 import { OverlayPicker } from "./components/OverlayPicker";
@@ -21,12 +24,43 @@ import { useImageLoader } from "./hooks/useImageLoader";
 import { useOverlayCache } from "./hooks/useOverlayCache";
 import type { CropRect } from "./types";
 
+type Theme = "light" | "dark" | "system";
+type ExportFmt = "png" | "jpeg" | "webp";
+
 const DEFAULT_CROP: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+const FMT_LABELS: Record<ExportFmt, string> = { png: "PNG", jpeg: "JPEG", webp: "WebP" };
+const FMT_EXTS: Record<ExportFmt, string> = { png: "png", jpeg: "jpg", webp: "webp" };
+const FMT_MIMES: Record<ExportFmt, string> = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" };
+
+function loadTheme(): Theme {
+	try {
+		const v = localStorage.getItem("mc-theme");
+		if (v === "light" || v === "dark" || v === "system") return v;
+	} catch {
+		/* noop */
+	}
+	return "system";
+}
+
+function applyTheme(t: Theme) {
+	if (t === "system") {
+		document.documentElement.removeAttribute("data-theme");
+	} else {
+		document.documentElement.setAttribute("data-theme", t);
+	}
+	try {
+		localStorage.setItem("mc-theme", t);
+	} catch {
+		/* noop */
+	}
+}
 
 export function App() {
 	const { imgRef, dataUrl, loading: imgLoading, error: imgError, load, reset } = useImageLoader();
 	const { cacheRef, status } = useOverlayCache(OVERLAYS);
 
+	const [theme, setTheme] = useState<Theme>(loadTheme);
+	const [exportFmt, setExportFmt] = useState<ExportFmt>("png");
 	const [cropRect, setCropRect] = useState<CropRect>(DEFAULT_CROP);
 	const [showCrop, setShowCrop] = useState(false);
 	const [cropDone, setCropDone] = useState(false);
@@ -44,10 +78,16 @@ export function App() {
 	const overlay = cacheRef.current.get(overlayId) ?? null;
 
 	useEffect(() => {
+		applyTheme(theme);
+	}, [theme]);
+
+	useEffect(() => {
 		if (dataUrl && imgRef.current && !showCrop && !cropDone) {
 			setShowCrop(true);
 		}
 	}, [dataUrl, imgRef, showCrop, cropDone]);
+
+	const handleTheme = useCallback((t: Theme) => setTheme(t), []);
 
 	const handleUpload = useCallback(
 		(file: File) => {
@@ -104,18 +144,54 @@ export function App() {
 		}
 
 		const label = overlayId;
+		const ext = FMT_EXTS[exportFmt];
+		const mime = FMT_MIMES[exportFmt];
+		// JPEG 不支持透明，给个白色底
+		if (exportFmt === "jpeg") {
+			ctx.globalCompositeOperation = "destination-over";
+			ctx.fillStyle = "#fff";
+			ctx.fillRect(0, 0, out, out);
+		}
 
 		const a = document.createElement("a");
-		a.download = `MC_${label}.png`;
-		a.href = c.toDataURL("image/png");
+		a.download = `MC_${label}.${ext}`;
+		a.href = c.toDataURL(mime, 0.92);
 		a.click();
-	}, [imgRef, cacheRef, overlayId, cropRect, deferredScale, deferredOx, deferredOy]);
+	}, [imgRef, cacheRef, overlayId, cropRect, deferredScale, deferredOx, deferredOy, exportFmt]);
 
 	const showPreview = dataUrl && img && cropDone;
 
 	return (
 		<>
 			<Header />
+			<div className="header" style={{ marginBottom: 18 }}>
+				<div className="theme-toggle">
+					<button
+						type="button"
+						className={`theme-btn${theme === "light" ? " active" : ""}`}
+						onClick={() => handleTheme("light")}
+						title="浅色"
+					>
+						<IconSun />
+					</button>
+					<button
+						type="button"
+						className={`theme-btn${theme === "dark" ? " active" : ""}`}
+						onClick={() => handleTheme("dark")}
+						title="深色"
+					>
+						<IconMoon />
+					</button>
+					<button
+						type="button"
+						className={`theme-btn${theme === "system" ? " active" : ""}`}
+						onClick={() => handleTheme("system")}
+						title="跟随系统"
+					>
+						<IconMonitor />
+					</button>
+				</div>
+			</div>
 			<main className="main">
 				<section className="section">
 					<div className="section-hd">
@@ -199,8 +275,17 @@ export function App() {
 								<button type="button" className="btn-sm btn-outline" onClick={handleReCrop}>
 									<IconCrop /> 重新裁剪
 								</button>
+								<select
+									className="fmt-select"
+									value={exportFmt}
+									onChange={(e) => setExportFmt(e.target.value as ExportFmt)}
+								>
+									<option value="png">PNG</option>
+									<option value="jpeg">JPEG</option>
+									<option value="webp">WebP</option>
+								</select>
 								<button type="button" className="btn-dl" onClick={handleDownload}>
-									<IconDownload /> 下载 PNG
+									<IconDownload /> 下载 {FMT_LABELS[exportFmt]}
 								</button>
 							</div>
 						</section>
