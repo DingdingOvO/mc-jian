@@ -11,6 +11,19 @@
 		<meta property="og:image" content="/assets/Minecraft_franchise_logo.svg" />
 		<link rel="icon" href="/assets/Minecraft_franchise_logo.svg" type="image/svg+xml" />
 		<title>MC挂件 — 头像生成器</title>
+		<script>
+			// 阻塞渲染前注入主题，消除闪白
+			(function(){
+				var t; try { t = localStorage.getItem('mc-theme'); } catch(e) {}
+				var d = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme:dark)').matches);
+				if (d) {
+					document.documentElement.setAttribute('data-theme','dark');
+					document.documentElement.style.colorScheme = 'dark';
+					var m = document.querySelector('meta[name="theme-color"]');
+					if (m) m.content = '#1a1814';
+				}
+			})();
+		</script>
 	</head>
 	<body>
 		<div id="root"></div>
