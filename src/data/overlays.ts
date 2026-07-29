@@ -1,7 +1,7 @@
 import type { OverlayAsset } from "../types";
 
 export const OVERLAYS: OverlayAsset[] = [
-	{ id: "le", label: "乐魂", url: "/assets/le.png", baseSize: 512 },
+	{ id: "le", label: "乐魂", url: "/assets/le_overlay.png", baseSize: 1024 },
 	{ id: "copper_golem", label: "铜傀儡", url: "/assets/copper_golem.png", baseSize: 1024 },
 	{ id: "weathered_golem", label: "铜傀儡·斑驳", url: "/assets/weathered_golem.png", baseSize: 1024 },
 	{ id: "rusted_golem", label: "铜傀儡·锈蚀", url: "/assets/rusted_golem.png", baseSize: 1024 },
