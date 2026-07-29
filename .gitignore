@@ -14,3 +14,9 @@ Thumbs.db
 vite.config.js
 *.png
 screenshot_*
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
