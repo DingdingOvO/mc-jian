@@ -8,15 +8,15 @@
 
 ## 素材
 
-| ID | 名称 | 说明 |
+| 预览 | 名称 | 说明 |
 |---|---|---|
-| `le` | 🎭 乐魂 | 半透明灵魂像素风格 |
-| `copper` | 🤖 铜傀儡 | 经典铜傀儡 |
-| `copper_w` | 🔩 铜傀儡·斑驳 | 轻度风化 |
-| `copper_r` | 🔧 铜傀儡·锈蚀 | 中度锈蚀 |
-| `copper_o` | 🟤 铜傀儡·氧化 | 重度氧化 |
-| `chick` | 🐥 小鸡 | 乖巧蹲角落 |
-| `slime` | 🟢 硫磺史莱姆 | 萤光绿凝胶 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/le.webp" width="64" alt="乐魂"> | 🎭 乐魂 | 半透明灵魂像素风格 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper.webp" width="64" alt="铜傀儡"> | 🤖 铜傀儡 | 经典铜傀儡 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-weathered.webp" width="64" alt="铜傀儡·斑驳"> | 🔩 铜傀儡·斑驳 | 轻度风化 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-rusted.webp" width="64" alt="铜傀儡·锈蚀"> | 🔧 铜傀儡·锈蚀 | 中度锈蚀 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-oxidized.webp" width="64" alt="铜傀儡·氧化"> | 🟤 铜傀儡·氧化 | 重度氧化 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/chick.webp" width="64" alt="小鸡"> | 🐥 小鸡 | 乖巧蹲角落 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/slime.webp" width="64" alt="硫磺史莱姆"> | 🟢 硫磺史莱姆 | 萤光绿凝胶 |
 
 > 小鸡默认放在**左下角**，其余素材放在**右下角**。位置和大小可在预览区自由调整。
 
@@ -81,8 +81,9 @@ src/
 
 ### 添加新素材
 
-1. 图片放入 `public/assets/`
-2. 在 `src/data/overlays.ts` 的 `OVERLAYS` 数组追加一行：
+1. PNG 原图放入 `public/assets/` 留作备份
+2. 转换为 WebP（`public/assets/` 下同时保留 PNG + WebP，运行时不加载 PNG）
+3. 在 `src/data/overlays.ts` 的 `OVERLAYS` 数组追加一行：
 
 ```ts
 { id: "my-overlay", label: "我的挂件", url: "/assets/my-overlay.webp", baseSize: 512 }
