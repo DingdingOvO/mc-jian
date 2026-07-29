@@ -130,10 +130,10 @@ input { font: inherit; }
 .picker-arrow { margin-left: auto; color: var(--ink-m); display: inline-flex; width: 12px; height: 12px; transition: transform 0.2s ease; }
 .picker-arrow.open { transform: rotate(180deg); }
 .picker-body { overflow: hidden; transition: max-height 0.25s ease, opacity 0.2s ease; max-height: 0; opacity: 0; margin-top: 0; }
-.picker-body.open { max-height: 300px; opacity: 1; margin-top: 12px; }
+.picker-body.open { max-height: 300px; opacity: 1; margin-top: 4px; }
 .picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
 .picker-card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--r); padding: 12px 6px 10px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.picker-card:hover { border-color: var(--line-s); }
+.picker-card:hover { border-color: var(--line-s); transform: translateY(-1px); }
 .picker-card.active { border-color: var(--primary); background: var(--primary-s); }
 .picker-card:active { transform: scale(0.97); }
 .picker-thumb { width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; }
