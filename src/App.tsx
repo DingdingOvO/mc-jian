@@ -43,11 +43,23 @@ function loadTheme(): Theme {
 }
 
 function applyTheme(t: Theme) {
+	const isDark = t === "dark" || (t === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+
 	if (t === "system") {
 		document.documentElement.removeAttribute("data-theme");
 	} else {
 		document.documentElement.setAttribute("data-theme", t);
 	}
+
+	// 同步 color-scheme 给浏览器 UI（地址栏/状态栏/滚动条）
+	document.documentElement.style.colorScheme = isDark ? "dark" : "light";
+
+	// 同步 theme-color meta 标签（手机地址栏/状态栏颜色）
+	const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+	if (meta) {
+		meta.content = isDark ? "#1a1814" : "#c97830";
+	}
+
 	try {
 		localStorage.setItem("mc-theme", t);
 	} catch {
@@ -85,10 +97,7 @@ export function App() {
 	useEffect(() => {
 		if (theme !== "system") return;
 		const mq = window.matchMedia("(prefers-color-scheme: dark)");
-		const onChange = () => {
-			// 强制刷新 data-theme，保证 JS 层与 CSS 层同步
-			document.documentElement.removeAttribute("data-theme");
-		};
+		const onChange = () => applyTheme("system");
 		mq.addEventListener("change", onChange);
 		return () => mq.removeEventListener("change", onChange);
 	}, [theme]);

@@ -59,7 +59,7 @@
 *::selection { background: var(--primary-s); }
 button, input, label { -webkit-touch-callout: none; user-select: none; }
 
-html { height: 100%; background: var(--bg); }
+html { height: 100%; background: var(--bg); color-scheme: light dark; }
 body {
         font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         color: var(--ink);
