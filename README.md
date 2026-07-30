@@ -8,15 +8,15 @@
 
 ## 素材
 
-| 预览 | 名称 | 说明 |
+| 预览 | 名称 |
 |---|---|---|
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/le.webp" width="64" alt="乐魂"> | 🎭 乐魂 | 半透明灵魂像素风格 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper.webp" width="64" alt="铜傀儡"> | 🤖 铜傀儡 | 经典铜傀儡 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-weathered.webp" width="64" alt="铜傀儡·斑驳"> | 🔩 铜傀儡·斑驳 | 轻度风化 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-rusted.webp" width="64" alt="铜傀儡·锈蚀"> | 🔧 铜傀儡·锈蚀 | 中度锈蚀 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-oxidized.webp" width="64" alt="铜傀儡·氧化"> | 🟤 铜傀儡·氧化 | 重度氧化 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/chick.webp" width="64" alt="小鸡"> | 🐥 小鸡 | 乖巧蹲角落 |
-| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/slime.webp" width="64" alt="硫磺史莱姆"> | 🟢 硫磺史莱姆 | 萤光绿凝胶 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/le.webp" width="64" alt="乐魂"> | 乐魂 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper.webp" width="64" alt="铜傀儡"> | 铜傀儡 | 
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-weathered.webp" width="64" alt="铜傀儡·斑驳"> | 铜傀儡·斑驳 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-rusted.webp" width="64" alt="铜傀儡·锈蚀"> | 铜傀儡·锈蚀 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-oxidized.webp" width="64" alt="铜傀儡·氧化"> | 铜傀儡·氧化 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/chick.webp" width="64" alt="小鸡"> | 小鸡 |
+| <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/slime.webp" width="64" alt="硫磺史莱姆"> | 硫磺史莱姆 | 
 
 > 小鸡默认放在**左下角**，其余素材放在**右下角**。位置和大小可在预览区自由调整。
 
