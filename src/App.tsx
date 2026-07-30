@@ -30,6 +30,11 @@ type Theme = "light" | "dark" | "system";
 type ExportFmt = "png" | "jpeg" | "webp";
 
 const DEFAULT_CROP: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+const SCALE_MIN = 5;
+const SCALE_MAX = 60;
+const SCALE_STEP = 0.1;
+const OFFSET_MIN = -200;
+const OFFSET_MAX = 200;
 const FMT_LABELS: Record<ExportFmt, string> = { png: "PNG", jpeg: "JPEG", webp: "WebP" };
 const FMT_EXTS: Record<ExportFmt, string> = { png: "png", jpeg: "jpg", webp: "webp" };
 const FMT_MIMES: Record<ExportFmt, string> = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp" };
@@ -286,9 +291,9 @@ export function App() {
 									<span>占比</span>
 									<input
 										type="range"
-										min={5}
-										max={60}
-										step={0.1}
+										min={SCALE_MIN}
+										max={SCALE_MAX}
+										step={SCALE_STEP}
 										value={scale}
 										onChange={(e) => setScale(Number(e.target.value))}
 									/>
@@ -299,8 +304,8 @@ export function App() {
 									<span>水平</span>
 									<input
 										type="range"
-										min={-200}
-										max={200}
+										min={OFFSET_MIN}
+										max={OFFSET_MAX}
 										step={1}
 										value={ox}
 										onChange={(e) => setOx(Number(e.target.value))}
@@ -312,8 +317,8 @@ export function App() {
 									<span>垂直</span>
 									<input
 										type="range"
-										min={-200}
-										max={200}
+										min={OFFSET_MIN}
+										max={OFFSET_MAX}
 										step={1}
 										value={oy}
 										onChange={(e) => setOy(Number(e.target.value))}

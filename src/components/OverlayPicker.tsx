@@ -31,23 +31,21 @@ export const OverlayPicker = memo(function OverlayPicker({
 				</span>
 			</button>
 			<div className={`picker-body${open ? " open" : ""}`}>
-				{open && (
-					<div className="picker-grid">
-						{items.map((o) => (
-							<button
-								key={o.id}
-								type="button"
-								className={`picker-card${o.id === activeId ? " active" : ""}`}
-								onClick={() => onChange(o.id)}
-							>
-								<div className="picker-thumb">
-									<img src={o.url} alt={o.label} loading="lazy" />
-								</div>
-								<span className="picker-label">{o.label}</span>
-							</button>
-						))}
-					</div>
-				)}
+				<div className="picker-grid">
+					{items.map((o) => (
+						<button
+							key={o.id}
+							type="button"
+							className={`picker-card${o.id === activeId ? " active" : ""}`}
+							onClick={() => onChange(o.id)}
+						>
+							<div className="picker-thumb">
+								<img src={o.url} alt={o.label} loading="lazy" />
+							</div>
+							<span className="picker-label">{o.label}</span>
+						</button>
+					))}
+				</div>
 			</div>
 		</section>
 	);

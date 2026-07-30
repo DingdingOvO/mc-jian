@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { IconAlertCircle, IconCheck, IconSpinner, IconUpload } from "./Icons";
 
 interface Props {
@@ -11,6 +11,7 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 	const [drag, setDrag] = useState(false);
 	const [fileName, setFileName] = useState<string | null>(null);
 	const cnt = useRef(0);
+	const wrapRef = useRef<HTMLDivElement>(null);
 
 	const onChange = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -49,9 +50,35 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 		[onFile],
 	);
 
+	// 支持 Ctrl+V / ⌘V 粘贴
+	useEffect(() => {
+		const el = wrapRef.current;
+		if (!el) return;
+		const onPaste = (e: ClipboardEvent) => {
+			const items = e.clipboardData?.items;
+			if (!items) return;
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if (!item) continue;
+				if (item.kind === "file" && item.type.startsWith("image/")) {
+					e.preventDefault();
+					const f = item.getAsFile();
+					if (f) {
+						setFileName(f.name || "剪贴板图片");
+						onFile(f);
+					}
+					break;
+				}
+			}
+		};
+		el.addEventListener("paste", onPaste);
+		return () => el.removeEventListener("paste", onPaste);
+	}, [onFile]);
+
 	return (
 		/* biome-ignore lint/a11y/noStaticElementInteractions: drag/drop */
 		<div
+			ref={wrapRef}
 			className={`upload${drag ? " drag" : ""}${error ? " error" : ""}`}
 			onDragEnter={onDragEnter}
 			onDragLeave={onDragLeave}
@@ -65,7 +92,9 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 				<span className="upload-text">
 					{loading ? "处理中..." : drag ? "松开上传" : error ? error : fileName ? fileName : "选择或拖拽头像"}
 				</span>
-				{!(loading || drag || error || fileName) && <span className="upload-hint">JPG / PNG / WebP</span>}
+				{!(loading || drag || error || fileName) && (
+					<span className="upload-hint">JPG / PNG / WebP · 拖拽或 Ctrl+V 粘贴</span>
+				)}
 				{fileName && !loading && !drag && !error && <span className="upload-hint">点击重新选择</span>}
 			</label>
 			<input id="fu" type="file" accept="image/*" hidden onChange={onChange} />
