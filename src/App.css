@@ -138,7 +138,6 @@ input { font: inherit; }
 
 .crop-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #111; border-radius: 10px; overflow: hidden; cursor: grab; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 .crop-wrap:active { cursor: grabbing; }
-.crop-wrap canvas { display: block; width: 100%; height: 100%; }
 .crop-overlay { position: absolute; inset: 0; pointer-events: none; z-index: 1; box-shadow: 0 0 0 9999px rgba(0,0,0,0.55); }
 .crop-frame { position: absolute; z-index: 2; pointer-events: none; border: 2px solid rgba(255,255,255,0.8); border-radius: 2px;
   top: 50%; left: 50%; width: 88%; height: 88%; max-width: 88%; max-height: 88%;
