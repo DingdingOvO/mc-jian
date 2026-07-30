@@ -143,7 +143,7 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 	}, [img, onCrop]);
 
 	return (
-		<section className="crop">
+		<div className="crop">
 			<div className="crop-hd">
 				<span>
 					<IconCrop /> 裁剪
@@ -186,6 +186,6 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 				<div className="crop-frame" />
 				<span className="crop-hint">拖拽平移 / 滚轮或双指缩放</span>
 			</div>
-		</section>
+		</div>
 	);
 });

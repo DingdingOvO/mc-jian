@@ -214,7 +214,7 @@ export function App() {
 	return (
 		<>
 			<Header />
-			<div className="header" style={{ marginBottom: 18 }}>
+			<div className="theme-bar">
 				<div className="theme-toggle">
 					<button
 						type="button"
@@ -330,7 +330,12 @@ export function App() {
 										{exporting ? <IconSpinner /> : <IconDownload />}
 										{exporting ? "导出中…" : `下载 ${FMT_LABELS[exportFmt]}`}
 									</button>
-									<button type="button" className="btn-dl-arrow" onClick={() => setFmtOpen((v) => !v)} title="切换格式">
+									<button
+										type="button"
+										className={`btn-dl-arrow${fmtOpen ? " open" : ""}`}
+										onClick={() => setFmtOpen((v) => !v)}
+										title="切换格式"
+									>
 										<IconChevron />
 									</button>
 									{fmtOpen && (

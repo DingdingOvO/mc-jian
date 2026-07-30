@@ -22,10 +22,10 @@ export const OverlayPicker = memo(function OverlayPicker({
 	void _cache;
 	return (
 		<section className="picker">
-			<button className="picker-hd" onClick={onToggle} type="button">
+			<button className="section-hd picker-toggle" onClick={onToggle} type="button">
 				<span className="bar" />
 				<IconShapes />
-				选择挂件
+				4. 选择挂件
 				<span className={`picker-arrow${open ? " open" : ""}`}>
 					<IconChevron />
 				</span>
