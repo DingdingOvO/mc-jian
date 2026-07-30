@@ -11,19 +11,12 @@ interface Props {
 	cacheReady: boolean;
 }
 
-function freeCanvas(c: HTMLCanvasElement | null) {
-	if (!c) return;
-	c.width = 0;
-	c.height = 0;
-}
-
 export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox, oy, cacheReady }: Props) {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const avatarBuf = useRef<HTMLCanvasElement | null>(null);
 	const compBuf = useRef<HTMLCanvasElement | null>(null);
 	const cropKey = useRef("");
-	const lastImg = useRef<HTMLImageElement | null>(null);
 	const [outSize, setOutSize] = useState(0);
 
 	const updateSize = useCallback(() => {
@@ -43,15 +36,39 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		return () => ro.disconnect();
 	}, [updateSize]);
 
-	// 换图时释放旧 canvas 内存
-	if (img !== lastImg.current) {
-		lastImg.current = img;
-		freeCanvas(avatarBuf.current);
-		freeCanvas(compBuf.current);
+	// 换图时释放旧 buffer
+	// biome-ignore lint/correctness/useExhaustiveDependencies: img triggers cleanup
+	useEffect(() => {
+		const ac = avatarBuf.current;
+		const cc = compBuf.current;
+		if (ac) {
+			ac.width = 0;
+			ac.height = 0;
+		}
+		if (cc) {
+			cc.width = 0;
+			cc.height = 0;
+		}
 		avatarBuf.current = null;
 		compBuf.current = null;
 		cropKey.current = "";
-	}
+	}, [img]);
+
+	// 组件卸载时清理
+	useEffect(() => {
+		return () => {
+			const ac = avatarBuf.current;
+			const cc = compBuf.current;
+			if (ac) {
+				ac.width = 0;
+				ac.height = 0;
+			}
+			if (cc) {
+				cc.width = 0;
+				cc.height = 0;
+			}
+		};
+	}, []);
 
 	useEffect(() => {
 		void cacheReady;
@@ -70,7 +87,11 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 
 		if (key !== cropKey.current) {
 			cropKey.current = key;
-			freeCanvas(avatarBuf.current);
+			const ac = avatarBuf.current;
+			if (ac) {
+				ac.width = 0;
+				ac.height = 0;
+			}
 			const b = document.createElement("canvas");
 			b.width = out;
 			b.height = out;
@@ -87,7 +108,10 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 
 		let comp = compBuf.current;
 		if (!comp || comp.width !== out || comp.height !== out) {
-			freeCanvas(compBuf.current);
+			if (comp) {
+				comp.width = 0;
+				comp.height = 0;
+			}
 			comp = document.createElement("canvas");
 			comp.width = out;
 			comp.height = out;
@@ -115,11 +139,6 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		ctx.imageSmoothingEnabled = true;
 		ctx.imageSmoothingQuality = "high";
 		ctx.drawImage(comp, 0, 0);
-
-		return () => {
-			freeCanvas(avatarBuf.current);
-			freeCanvas(compBuf.current);
-		};
 	}, [img, overlay, cropRect, scale, ox, oy, cacheReady]);
 
 	return (
