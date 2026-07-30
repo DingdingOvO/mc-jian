@@ -1,8 +1,5 @@
 import { useCallback, useRef, useState } from "react";
 
-const MAX_SIZE = 20 * 1024 * 1024; // 20MB
-const ALLOWED: ReadonlySet<string> = new Set(["image/png", "image/jpeg", "image/webp"]);
-
 export function useImageLoader() {
 	const imgRef = useRef<HTMLImageElement | null>(null);
 	const [dataUrl, setDataUrl] = useState<string | null>(null);
@@ -11,16 +8,6 @@ export function useImageLoader() {
 	const seqRef = useRef(0);
 
 	const load = useCallback((file: File) => {
-		// 校验
-		if (!ALLOWED.has(file.type)) {
-			setError("仅支持 PNG / JPEG / WebP");
-			return;
-		}
-		if (file.size > MAX_SIZE) {
-			setError("图片不能超过 20MB");
-			return;
-		}
-
 		// 防竞态：递增序列号，旧回调自行忽略
 		const seq = ++seqRef.current;
 
