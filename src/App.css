@@ -129,7 +129,7 @@ input { font: inherit; }
 .crop-hd svg { color: var(--primary); width: 14px; height: 14px; vertical-align: -1px; }
 .crop-hd > span { font-size: 0.82rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
 .crop-actions { display: flex; gap: 8px; }
-.btn-sm svg { width: 14px; height: 14px; vertical-align: -1px; }
+.btn-sm svg { width: 14px; height: 14px; vertical-align: -1px; color: #fff; }
 .btn-sm { background: var(--primary); color: #fff; border: none; border-radius: 10px; padding: 8px 16px; font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.1s; }
 .btn-sm:hover { background: var(--primary-h); }
 .btn-sm:active { transform: scale(0.96); }
