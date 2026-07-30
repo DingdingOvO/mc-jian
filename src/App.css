@@ -93,7 +93,7 @@ input { font: inherit; }
 .badge { display: inline-block; background: var(--primary-s); color: var(--primary-h); font-size: 0.58rem; font-weight: 700; padding: 1px 7px; border-radius: 6px; vertical-align: middle; margin-right: 2px; transition: background-color 0.2s ease, color 0.2s ease; }
 
 /* ── Theme Bar ── */
-.theme-bar { width: 100%; max-width: 820px; margin-bottom: 18px; text-align: center; }
+.theme-bar { width: 100%; max-width: 820px; margin-bottom: 18px; text-align: center; animation: fadeUp 0.3s var(--ease) 0.05s both; }
 .theme-toggle { display: inline-flex; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 2px; gap: 1px; transition: background-color 0.2s ease, border-color 0.2s ease; }
 .theme-btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 28px; border: none; background: none; color: var(--ink-m); border-radius: 8px; cursor: pointer; transition: background 0.15s, color 0.15s; }
 .theme-btn svg { width: 15px; height: 15px; }
