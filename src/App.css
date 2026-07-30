@@ -21,7 +21,7 @@
 [data-theme="dark"] {
         --primary: #e8944a;
         --primary-h: #f0a868;
-        --primary-s: #3a2412;
+        --primary-s: #4a3018;
         --ink: #e8e4dd;
         --ink-s: #a09888;
         --ink-m: #6b6458;
@@ -107,7 +107,7 @@ input { font: inherit; }
 .section:nth-child(2) { animation-delay: 0.05s; }
 .section:nth-child(3) { animation-delay: 0.1s; }
 .section:nth-child(4) { animation-delay: 0.15s; }
-.section-hd { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--ink-s); letter-spacing: 0.5px; margin-bottom: 14px; transition: color 0.2s ease; }
+.section-hd { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; font-weight: 600; color: var(--ink-s); margin-bottom: 14px; transition: color 0.2s ease; }
 .section-hd .bar { width: 3px; height: 14px; background: var(--primary); border-radius: 2px; flex-shrink: 0; }
 .section-hd svg { color: var(--primary); width: 16px; height: 16px; vertical-align: -2px; }
 
@@ -149,6 +149,8 @@ input { font: inherit; }
 /* ── Preview ── */
 .preview-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 14px; }
 .preview-canvas { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; image-rendering: auto; width: 280px; height: 280px; transition: background-color 0.2s ease, border-color 0.2s ease; }
+[data-theme="dark"] .preview-canvas { border-color: var(--line-s); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .preview-canvas { border-color: var(--line-s); } }
 .preview-size { font-size: 0.7rem; color: var(--ink-m); margin-top: 6px; text-align: center; font-variant-numeric: tabular-nums; }
 .preview-actions { display: flex; gap: 10px; }
 .preview-actions .btn-dl { flex: 1; }
@@ -184,7 +186,7 @@ input { font: inherit; }
 .fmt-opt + .fmt-opt { border-top: 1px solid var(--line); }
 
 /* ── Picker ── */
-.picker-toggle { width: 100%; border: none; background: none; font: inherit; cursor: pointer; padding: 0; text-align: left; }
+.picker-toggle { width: 100%; border: none; background: none; font-size: 0.78rem; font-weight: 600; cursor: pointer; padding: 0; text-align: left; color: var(--ink-s); }
 .picker-toggle:hover { color: var(--ink); }
 .picker-arrow { margin-left: auto; color: var(--ink-m); display: inline-flex; width: 12px; height: 12px; transition: transform 0.2s ease, color 0.15s; }
 .picker-arrow.open { transform: rotate(180deg); }
@@ -195,11 +197,13 @@ input { font: inherit; }
 .picker-body::-webkit-scrollbar-thumb { background: var(--line-s); border-radius: 10px; }
 .picker-body::-webkit-scrollbar-thumb:hover { background: var(--ink-m); }
 .picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 4px; }
-.picker-card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--r); padding: 14px 6px 10px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s, box-shadow 0.12s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.picker-card { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); padding: 14px 6px 10px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s, box-shadow 0.12s; display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .picker-card:hover { border-color: var(--line-s); transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
 .picker-card.active { border-color: var(--primary); background: var(--primary-s); }
 .picker-card:active { transform: scale(0.97); }
 .picker-thumb { width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; display: flex; justify-content: center; align-items: center; overflow: hidden; transition: border-color 0.15s, background-color 0.2s ease; }
+[data-theme="dark"] .picker-thumb { border-color: var(--line-s); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .picker-thumb { border-color: var(--line-s); } }
 .picker-thumb img { max-width: 100%; max-height: 100%; display: block; }
 .picker-label { font-size: 0.78rem; color: var(--ink-s); font-weight: 600; text-align: center; transition: color 0.15s; }
 .picker-card.active .picker-label { color: var(--primary-h); }
