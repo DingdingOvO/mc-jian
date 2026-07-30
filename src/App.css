@@ -151,7 +151,6 @@ input { font: inherit; }
 [data-theme="dark"] .preview-canvas { border-color: var(--line-s); }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .preview-canvas { border-color: var(--line-s); } }
 .preview-size { font-size: 0.7rem; color: var(--ink-m); margin-top: 6px; text-align: center; font-variant-numeric: tabular-nums; }
-.preview-size-note { color: var(--primary); font-weight: 600; }
 .preview-actions { display: flex; gap: 10px; }
 .preview-actions .btn-dl { flex: 1; }
 .preview-actions .btn-outline { flex-shrink: 0; }
