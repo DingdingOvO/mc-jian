@@ -9,7 +9,7 @@
 ## 素材
 
 | 预览 | 名称 |
-|---|---|---|
+|---|---|
 | <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/le.webp" width="64" alt="乐魂"> | 乐魂 |
 | <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper.webp" width="64" alt="铜傀儡"> | 铜傀儡 | 
 | <img src="https://raw.githubusercontent.com/DingdingOvO/mc-jian/main/public/assets/copper-weathered.webp" width="64" alt="铜傀儡·斑驳"> | 铜傀儡·斑驳 |
