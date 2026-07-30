@@ -30,6 +30,7 @@ type Theme = "light" | "dark" | "system";
 type ExportFmt = "png" | "jpeg" | "webp";
 
 const DEFAULT_CROP: CropRect = { x: 0, y: 0, w: 1, h: 1 };
+const MAX_OUT = 4096; // 输出软上限，防浏览器 OOM
 const SCALE_MIN = 5;
 const SCALE_MAX = 60;
 const SCALE_STEP = 0.1;
@@ -154,7 +155,7 @@ export function App() {
 		const sx = cropRect.x * avatar.naturalWidth;
 		const sy = cropRect.y * avatar.naturalHeight;
 		const sw = cropRect.w * avatar.naturalWidth;
-		const out = Math.round(sw);
+		const out = Math.min(Math.round(sw), MAX_OUT);
 		if (out < 1) {
 			setExporting(false);
 			return;

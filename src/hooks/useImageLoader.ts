@@ -13,6 +13,13 @@ export function useImageLoader() {
 
 		setError(null);
 		setLoading(true);
+
+		// 换图时释放旧 Image 对象，帮助 GC 回收大图内存
+		if (imgRef.current) {
+			imgRef.current.src = "";
+			imgRef.current = null;
+		}
+
 		const reader = new FileReader();
 		reader.onload = (ev) => {
 			if (seq !== seqRef.current) return;

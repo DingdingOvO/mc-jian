@@ -1,6 +1,8 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { CropRect } from "../types";
 
+const MAX_OUT = 4096; // 软上限防浏览器 OOM
+
 interface Props {
 	img: HTMLImageElement;
 	overlay: HTMLImageElement | null;
@@ -11,12 +13,19 @@ interface Props {
 	cacheReady: boolean;
 }
 
+function freeCanvas(c: HTMLCanvasElement | null) {
+	if (!c) return;
+	c.width = 0;
+	c.height = 0;
+}
+
 export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox, oy, cacheReady }: Props) {
 	const ref = useRef<HTMLCanvasElement>(null);
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const avatarBuf = useRef<HTMLCanvasElement | null>(null);
 	const compBuf = useRef<HTMLCanvasElement | null>(null);
 	const cropKey = useRef("");
+	const lastImg = useRef<HTMLImageElement | null>(null);
 	const [outSize, setOutSize] = useState(0);
 
 	const updateSize = useCallback(() => {
@@ -36,6 +45,16 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		return () => ro.disconnect();
 	}, [updateSize]);
 
+	// 换图时释放旧 canvas 内存
+	if (img !== lastImg.current) {
+		lastImg.current = img;
+		freeCanvas(avatarBuf.current);
+		freeCanvas(compBuf.current);
+		avatarBuf.current = null;
+		compBuf.current = null;
+		cropKey.current = "";
+	}
+
 	useEffect(() => {
 		void cacheReady;
 		const c = ref.current;
@@ -44,7 +63,7 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		const sx = cropRect.x * img.naturalWidth;
 		const sy = cropRect.y * img.naturalHeight;
 		const sw = cropRect.w * img.naturalWidth;
-		const out = Math.round(sw);
+		const out = Math.min(Math.round(sw), MAX_OUT);
 		if (out < 1) return;
 
 		setOutSize(out);
@@ -53,6 +72,7 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 
 		if (key !== cropKey.current) {
 			cropKey.current = key;
+			freeCanvas(avatarBuf.current);
 			const b = document.createElement("canvas");
 			b.width = out;
 			b.height = out;
@@ -69,6 +89,7 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 
 		let comp = compBuf.current;
 		if (!comp || comp.width !== out || comp.height !== out) {
+			freeCanvas(compBuf.current);
 			comp = document.createElement("canvas");
 			comp.width = out;
 			comp.height = out;
@@ -96,6 +117,11 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		ctx.imageSmoothingEnabled = true;
 		ctx.imageSmoothingQuality = "high";
 		ctx.drawImage(comp, 0, 0);
+
+		return () => {
+			freeCanvas(avatarBuf.current);
+			freeCanvas(compBuf.current);
+		};
 	}, [img, overlay, cropRect, scale, ox, oy, cacheReady]);
 
 	return (
