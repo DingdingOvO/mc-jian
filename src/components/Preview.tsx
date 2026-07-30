@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import type { CropRect } from "../types";
 
-const MAX_OUT = 4096; // 软上限防浏览器 OOM
+const MAX_OUT = 8192; // 软上限防浏览器 OOM
 
 interface Props {
 	img: HTMLImageElement;
@@ -27,6 +27,7 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 	const cropKey = useRef("");
 	const lastImg = useRef<HTMLImageElement | null>(null);
 	const [outSize, setOutSize] = useState(0);
+	const [clamped, setClamped] = useState(false);
 
 	const updateSize = useCallback(() => {
 		const c = ref.current;
@@ -63,10 +64,12 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		const sx = cropRect.x * img.naturalWidth;
 		const sy = cropRect.y * img.naturalHeight;
 		const sw = cropRect.w * img.naturalWidth;
-		const out = Math.min(Math.round(sw), MAX_OUT);
+		const raw = Math.round(sw);
+		const out = Math.min(raw, MAX_OUT);
 		if (out < 1) return;
 
 		setOutSize(out);
+		if (raw > MAX_OUT) setClamped(true);
 
 		const key = `${sx.toFixed(1)},${sy.toFixed(1)},${out}`;
 
@@ -129,7 +132,8 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 			<canvas ref={ref} className="preview-canvas" />
 			{outSize > 0 && (
 				<span className="preview-size">
-					{outSize} x {outSize}
+					{outSize} × {outSize}
+					{clamped && <span className="preview-size-note">（已优化至安全分辨率）</span>}
 				</span>
 			)}
 		</div>
