@@ -134,7 +134,9 @@ input { font: inherit; }
 .btn-sm:hover { background: var(--primary-h); }
 .btn-sm:active { transform: scale(0.96); }
 .btn-outline { background: transparent; color: var(--ink-s); border: 1px solid var(--line-s); transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.btn-outline svg { color: var(--primary); }
 .btn-outline:hover { background: var(--bg); color: var(--ink); border-color: var(--ink-m); }
+.btn-outline:hover svg { color: var(--primary-h); }
 
 .crop-wrap { position: relative; width: 100%; aspect-ratio: 1/1; background: #111; border-radius: 10px; overflow: hidden; cursor: grab; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08); }
 .crop-wrap:active { cursor: grabbing; }
