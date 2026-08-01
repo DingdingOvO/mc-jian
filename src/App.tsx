@@ -1,4 +1,4 @@
-import { useCallback, useDeferredValue, useEffect, useState } from "react";
+import { useCallback, useDeferredValue, useEffect, useRef, useState } from "react";
 import { CropPanel } from "./components/CropPanel";
 import { Header } from "./components/Header";
 import {
@@ -58,10 +58,8 @@ function applyTheme(t: Theme) {
 		document.documentElement.setAttribute("data-theme", t);
 	}
 
-	// 同步 color-scheme 给浏览器 UI（地址栏/状态栏/滚动条）
 	document.documentElement.style.colorScheme = isDark ? "dark" : "light";
 
-	// 同步 theme-color meta 标签（手机地址栏/状态栏颜色）
 	const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
 	if (meta) {
 		meta.content = isDark ? "#1a1814" : "#c97830";
@@ -94,6 +92,21 @@ export function App() {
 	const [fmtOpen, setFmtOpen] = useState(false);
 	const [exporting, setExporting] = useState(false);
 
+	// @constraint fmt-drop click-outside-to-close
+	const fmtRef = useRef<HTMLDivElement>(null);
+	const fmtArrowRef = useRef<HTMLButtonElement>(null);
+
+	useEffect(() => {
+		if (!fmtOpen) return;
+		const handler = (e: MouseEvent) => {
+			const target = e.target as Node;
+			if (fmtRef.current?.contains(target) || fmtArrowRef.current?.contains(target)) return;
+			setFmtOpen(false);
+		};
+		document.addEventListener("mousedown", handler);
+		return () => document.removeEventListener("mousedown", handler);
+	}, [fmtOpen]);
+
 	const cacheReady = status[overlayId]?.loaded ?? false;
 	const img = imgRef.current;
 	const overlay = cacheRef.current.get(overlayId) ?? null;
@@ -102,7 +115,6 @@ export function App() {
 		applyTheme(theme);
 	}, [theme]);
 
-	// 跟随系统模式时，监听 OS 主题切换
 	useEffect(() => {
 		if (theme !== "system") return;
 		const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -183,7 +195,6 @@ export function App() {
 		const label = overlayId;
 		const ext = FMT_EXTS[exportFmt];
 		const mime = FMT_MIMES[exportFmt];
-		// JPEG 不支持透明，给个白色底
 		if (exportFmt === "jpeg") {
 			ctx.globalCompositeOperation = "destination-over";
 			ctx.fillStyle = "#fff";
@@ -199,11 +210,9 @@ export function App() {
 				const a = document.createElement("a");
 				a.download = `MC_${label}.${ext}`;
 				a.href = url;
-				// 挂载到 DOM 再触发，兼容旧 Safari
 				a.style.display = "none";
 				document.body.appendChild(a);
 				a.click();
-				// 延迟移除，确保下载已启动
 				setTimeout(() => {
 					document.body.removeChild(a);
 					URL.revokeObjectURL(url);
@@ -333,9 +342,10 @@ export function App() {
 								<div className="btn-dl-split">
 									<button type="button" className="btn-dl" onClick={handleDownload} disabled={exporting}>
 										{exporting ? <IconSpinner /> : <IconDownload />}
-										{exporting ? "导出中…" : `下载 ${FMT_LABELS[exportFmt]}`}
+										<span className="btn-dl-label">{exporting ? "导出中…" : `下载 ${FMT_LABELS[exportFmt]}`}</span>
 									</button>
 									<button
+										ref={fmtArrowRef}
 										type="button"
 										className={`btn-dl-arrow${fmtOpen ? " open" : ""}`}
 										onClick={() => setFmtOpen((v) => !v)}
@@ -343,23 +353,21 @@ export function App() {
 									>
 										<IconChevron />
 									</button>
-									{fmtOpen && (
-										<div className="fmt-drop">
-											{(["png", "jpeg", "webp"] as ExportFmt[]).map((f) => (
-												<button
-													key={f}
-													type="button"
-													className={`fmt-opt${f === exportFmt ? " active" : ""}`}
-													onClick={() => {
-														setExportFmt(f);
-														setFmtOpen(false);
-													}}
-												>
-													{FMT_LABELS[f]}
-												</button>
-											))}
-										</div>
-									)}
+									<div ref={fmtRef} className={`fmt-drop${fmtOpen ? " open" : ""}`}>
+										{(["png", "jpeg", "webp"] as ExportFmt[]).map((f) => (
+											<button
+												key={f}
+												type="button"
+												className={`fmt-opt${f === exportFmt ? " active" : ""}`}
+												onClick={() => {
+													setExportFmt(f);
+													setFmtOpen(false);
+												}}
+											>
+												{FMT_LABELS[f]}
+											</button>
+										))}
+									</div>
 								</div>
 							</div>
 						</section>
