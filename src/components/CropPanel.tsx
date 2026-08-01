@@ -24,8 +24,8 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 
 	useEffect(() => {
 		const w = wrap.current?.clientWidth ?? 400;
-		const fp = Math.min(w, 500) * 0.88;
-		const z = Math.max(0.3, Math.min(6, fp / Math.min(img.naturalWidth, img.naturalHeight)));
+		const fp = Math.min(w, 800) * 0.88;
+		const z = Math.max(0.02, Math.min(20, fp / Math.min(img.naturalWidth, img.naturalHeight)));
 		const next = { px: 0, py: 0, z };
 		sRef.current = next;
 		setSState(next);
@@ -69,7 +69,7 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 				const dx = (list[0]?.x ?? 0) - (list[1]?.x ?? 0);
 				const dy = (list[0]?.y ?? 0) - (list[1]?.y ?? 0);
 				const dist = Math.sqrt(dx * dx + dy * dy);
-				const nz = Math.max(0.3, Math.min(6, p.z * (dist / p.d)));
+				const nz = Math.max(0.02, Math.min(20, p.z * (dist / p.d)));
 				const zoomScale = nz / p.z;
 
 				const el = wrap.current;
@@ -110,7 +110,7 @@ export const CropPanel = memo(function CropPanel({ img, onCrop, onSkip }: Props)
 		(e: React.WheelEvent) => {
 			const cur = sRef.current;
 			const ratio = e.deltaY > 0 ? 0.9 : 1.1;
-			const nz = Math.max(0.3, Math.min(6, cur.z * ratio));
+			const nz = Math.max(0.02, Math.min(20, cur.z * ratio));
 			const zoomScale = nz / cur.z;
 			setS({ px: cur.px * zoomScale, py: cur.py * zoomScale, z: nz });
 		},
