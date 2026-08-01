@@ -36,8 +36,6 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		return () => ro.disconnect();
 	}, [updateSize]);
 
-	// 换图时释放旧 buffer
-	// biome-ignore lint/correctness/useExhaustiveDependencies: img triggers cleanup
 	useEffect(() => {
 		const ac = avatarBuf.current;
 		const cc = compBuf.current;
@@ -54,7 +52,6 @@ export const Preview = memo(function Preview({ img, overlay, cropRect, scale, ox
 		cropKey.current = "";
 	}, [img]);
 
-	// 组件卸载时清理
 	useEffect(() => {
 		return () => {
 			const ac = avatarBuf.current;

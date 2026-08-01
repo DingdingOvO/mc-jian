@@ -13,7 +13,6 @@ export function useOverlayCache(overlays: OverlayAsset[]) {
 		let alive = true;
 		const cache = cacheRef.current;
 
-		// 初始化状态
 		const init: Record<string, OverlayState> = {};
 		for (const o of overlays) {
 			init[o.id] = { loaded: cache.has(o.id) };

@@ -12,7 +12,6 @@
 		<link rel="icon" href="/assets/Minecraft_franchise_logo.svg" type="image/svg+xml" />
 		<title>MC挂件 — 头像生成器</title>
 		<script>
-			// 阻塞渲染前注入主题，消除闪白
 			(function(){
 				var t; try { t = localStorage.getItem('mc-theme'); } catch(e) {}
 				var d = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme:dark)').matches);

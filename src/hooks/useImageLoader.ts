@@ -8,13 +8,11 @@ export function useImageLoader() {
 	const seqRef = useRef(0);
 
 	const load = useCallback((file: File) => {
-		// 防竞态：递增序列号，旧回调自行忽略
 		const seq = ++seqRef.current;
 
 		setError(null);
 		setLoading(true);
 
-		// 换图时释放旧 Image 对象，帮助 GC 回收大图内存
 		if (imgRef.current) {
 			imgRef.current.src = "";
 			imgRef.current = null;

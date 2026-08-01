@@ -50,7 +50,6 @@ export const UploadArea = memo(function UploadArea({ onFile, loading, error }: P
 		[onFile],
 	);
 
-	// 支持 Ctrl+V / ⌘V 粘贴
 	useEffect(() => {
 		const el = wrapRef.current;
 		if (!el) return;
